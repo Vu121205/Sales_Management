@@ -129,6 +129,9 @@ public class AdminForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnProductTypeManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductTypeManagementActionPerformed
+        this.dispose();
+        ProductTypeAdmin productType = new ProductTypeAdmin();
+        productType.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_btnProductTypeManagementActionPerformed
 
