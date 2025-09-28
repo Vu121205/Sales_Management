@@ -77,6 +77,11 @@ public class AdminForm extends javax.swing.JFrame {
 
         btnProductManagement.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnProductManagement.setText("Quản lý sản phẩm");
+        btnProductManagement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnProductManagementActionPerformed(evt);
+            }
+        });
 
         btnOrderManagement.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnOrderManagement.setText("Quản lý đơn hàng");
@@ -139,6 +144,14 @@ public class AdminForm extends javax.swing.JFrame {
         System.exit(0);
         // TODO add your handling code here:
     }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnProductManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductManagementActionPerformed
+        this.dispose();
+        ProductManagent product = new ProductManagent();
+        product.setVisible(true);
+        
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnProductManagementActionPerformed
 
     /**
      * @param args the command line arguments
