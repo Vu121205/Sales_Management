@@ -85,6 +85,11 @@ public class AdminForm extends javax.swing.JFrame {
 
         btnOrderManagement.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnOrderManagement.setText("Quản lý đơn hàng");
+        btnOrderManagement.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOrderManagementActionPerformed(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel2.setText("MENU QUẢN LÝ");
@@ -152,6 +157,13 @@ public class AdminForm extends javax.swing.JFrame {
         
         // TODO add your handling code here:
     }//GEN-LAST:event_btnProductManagementActionPerformed
+
+    private void btnOrderManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrderManagementActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        OrderManagement order = new OrderManagement();
+        order.setVisible(true);
+    }//GEN-LAST:event_btnOrderManagementActionPerformed
 
     /**
      * @param args the command line arguments
