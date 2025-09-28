@@ -41,33 +41,33 @@ public class LoginForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setText("Login");
+        jLabel1.setText("Đăng nhập");
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel2.setText("Username:");
+        jLabel2.setText("Tài khoản:");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel3.setText("Password:");
+        jLabel3.setText("Mật khẩu:");
 
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        btnSignup.setText("SignUp");
+        btnSignup.setText("Đăng ký");
         btnSignup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSignupActionPerformed(evt);
             }
         });
 
-        btnCancel.setText("Cancel");
+        btnCancel.setText("Thoát");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelActionPerformed(evt);
             }
         });
 
-        btnLogin.setText("Login");
+        btnLogin.setText("Đăng nhập");
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnLoginActionPerformed(evt);
@@ -90,13 +90,13 @@ public class LoginForm extends javax.swing.JFrame {
                         .addGap(40, 40, 40)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 139, Short.MAX_VALUE)
+                                .addGap(0, 125, Short.MAX_VALUE)
                                 .addComponent(btnLogin)
-                                .addGap(32, 32, 32)
+                                .addGap(18, 18, 18)
                                 .addComponent(btnSignup)
-                                .addGap(28, 28, 28)
+                                .addGap(18, 18, 18)
                                 .addComponent(btnCancel)
-                                .addGap(26, 26, 26))
+                                .addGap(50, 50, 50))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel3)
@@ -108,10 +108,10 @@ public class LoginForm extends javax.swing.JFrame {
                                             .addComponent(txtUsername))))
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(205, 205, 205)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(171, 171, 171))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -160,20 +160,16 @@ public class LoginForm extends javax.swing.JFrame {
         if (u != null) {
             // Kiểm tra quyền
             if ("admin".equalsIgnoreCase(u.getRole())) {
-                JOptionPane.showMessageDialog(this,
-                        "Đăng nhập thành công với quyền ADMIN");
+                JOptionPane.showMessageDialog(this,"Đăng nhập thành công với quyền ADMIN");
+                AdminForm admin = new AdminForm();
+                admin.setVisible(true);
             } else if ("user".equalsIgnoreCase(u.getRole())) {
-                JOptionPane.showMessageDialog(this,
-                        "Đăng nhập thành công với quyền USER");
-            } else {
-                // trường hợp role khác
-                JOptionPane.showMessageDialog(this,
-                        "Đăng nhập thành công với quyền: " + u.getRole());
+                JOptionPane.showMessageDialog(this,"Đăng nhập thành công");
+                UserForm user = new UserForm();
+                user.setVisible(true);
             }
-
-            // đóng LoginForm và mở MainForm
+           // đóng LoginForm và mở AdminForm
             this.dispose();
-            new MainForm(u).setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this,
                     "Thông tin đăng nhập không đúng, vui lòng nhập lại!");
