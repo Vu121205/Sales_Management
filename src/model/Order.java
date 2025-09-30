@@ -9,12 +9,11 @@ import java.util.List;
  */
 public class Order {
     private String id;
-    private String userName;
     private LocalDate orderDate;
     private LocalDate orderDelivery; // ngày giao hàng
     private String createdBy;   // thêm trường này
-    private Double totalAmount;
     private String note; // ghi chú
+    private Double totalAmount;
     private List<OrderDetail> details; // danh sách chi tiết đơn hàng
 
     public Order() {
@@ -36,14 +35,6 @@ public class Order {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public LocalDate getOrderDate() {

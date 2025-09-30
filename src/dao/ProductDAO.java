@@ -25,7 +25,7 @@ public class ProductDAO {
     
     public List<Product> getAllProducts() {
         List<Product> list = new ArrayList<>();
-        String sql = "SELECT * FROM products";
+        String sql = "SELECT * FROM product";
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {

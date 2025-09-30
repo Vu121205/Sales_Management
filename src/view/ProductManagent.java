@@ -3,7 +3,6 @@ package view;
 import dao.CategoryDAO;
 import dao.ProductDAO;
 import java.util.List;
-import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.Category;

@@ -1,5 +1,6 @@
 package view;
 
+import dao.DBConnection;
 import dao.OrderDAO;
 import model.Order;
 import java.sql.ResultSet;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.OrderDetail;
 
@@ -16,13 +18,16 @@ import model.OrderDetail;
  * @author ADMIN
  */
 public class OrderManagement extends javax.swing.JFrame {
+    private OrderDAO orderDAO;
 
     /**
      * Creates new form OrderManagement
      */
     public OrderManagement() {
         initComponents();
+        orderDAO = new OrderDAO();
         loadOrders();
+        setupStatisticComboBox();
     }
     
     // 1. Nạp dữ liệu Order vào bảng orderTable
@@ -66,8 +71,53 @@ public class OrderManagement extends javax.swing.JFrame {
         // Gán model lại cho JTable
         tableOrderDetail.setModel(model);
     }
+    
+    private void setupStatisticComboBox() {
+    // Thêm các lựa chọn thống kê
+        cbxStatisticType.removeAllItems();
+        cbxStatisticType.addItem("Ngày");
+        cbxStatisticType.addItem("Tuần");
+        cbxStatisticType.addItem("Tháng");
+        cbxStatisticType.addItem("Năm");
 
+        // Lắng nghe sự kiện khi thay đổi lựa chọn
+        cbxStatisticType.addActionListener(e -> loadStatistics());
 
+        // Mặc định chọn "Ngày"
+        cbxStatisticType.setSelectedIndex(0);
+    }
+    
+    private void loadStatistics() {
+        try {
+            String type = cbxStatisticType.getSelectedItem().toString();
+            String queryType = "";
+
+            switch (type) {
+                case "Ngày":
+                    queryType = "DAY";
+                    break;
+                case "Tuần":
+                    queryType = "WEEK";
+                    break;
+                case "Tháng":
+                    queryType = "MONTH";
+                    break;
+                case "Năm":
+                    queryType = "YEAR";
+                    break;
+            }
+
+            int orders = orderDAO.getTotalOrders(queryType);
+            double revenue = orderDAO.getTotalRevenue(queryType);
+
+            txtTotalOrders.setText("Số đơn: " + orders);
+            txtTotalRevenue.setText("Doanh thu: " + revenue + " VND");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi thống kê: " + e.getMessage());
+        }
+    }
 
 
     /**
@@ -84,13 +134,10 @@ public class OrderManagement extends javax.swing.JFrame {
         orderTable = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         tableOrderDetail = new javax.swing.JTable();
-        btnDay = new javax.swing.JButton();
-        btnWeek = new javax.swing.JButton();
-        btnMonth = new javax.swing.JButton();
-        btnYear = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        cbxStatisticType = new javax.swing.JComboBox<>();
+        txtTotalRevenue = new javax.swing.JTextField();
+        txtTotalOrders = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -144,55 +191,42 @@ public class OrderManagement extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tableOrderDetail);
 
-        btnDay.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnDay.setText("Ngày");
-
-        btnWeek.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnWeek.setText("Tuần");
-
-        btnMonth.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnMonth.setText("Tháng");
-
-        btnYear.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnYear.setText("Năm");
-
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel2.setText("Thống kê:");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel3.setText("Tổng doanh thu: ");
+        cbxStatisticType.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cbxStatisticType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Thống kê" }));
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel4.setText("Tổng đơn hàng:");
+        txtTotalRevenue.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+
+        txtTotalOrders.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(379, 379, 379)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(43, 43, 43)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 931, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 931, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addGap(69, 69, 69)
-                                    .addComponent(btnDay)
-                                    .addGap(43, 43, 43)
-                                    .addComponent(btnWeek)
-                                    .addGap(43, 43, 43)
-                                    .addComponent(btnMonth)
-                                    .addGap(40, 40, 40)
-                                    .addComponent(btnYear))
-                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addContainerGap(58, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 895, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(350, 350, 350)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 895, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(186, 186, 186)
+                .addComponent(jLabel2)
+                .addGap(60, 60, 60)
+                .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(txtTotalOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(208, 208, 208))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -201,20 +235,16 @@ public class OrderManagement extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(30, 30, 30)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(31, 31, 31)
+                .addGap(37, 37, 37)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnDay)
-                    .addComponent(btnWeek)
-                    .addComponent(btnMonth)
-                    .addComponent(btnYear)
-                    .addComponent(jLabel2))
+                    .addComponent(jLabel2)
+                    .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTotalOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jLabel3)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(56, Short.MAX_VALUE))
         );
 
         pack();
@@ -264,17 +294,14 @@ public class OrderManagement extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnDay;
-    private javax.swing.JButton btnMonth;
-    private javax.swing.JButton btnWeek;
-    private javax.swing.JButton btnYear;
+    private javax.swing.JComboBox<String> cbxStatisticType;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable orderTable;
     private javax.swing.JTable tableOrderDetail;
+    private javax.swing.JTextField txtTotalOrders;
+    private javax.swing.JTextField txtTotalRevenue;
     // End of variables declaration//GEN-END:variables
 }

@@ -75,55 +75,55 @@ public class OrderDAO {
         }
         return details;
     }
-
-
-
-    // Thêm mới đơn hàng kèm chi tiết
-    public boolean insertOrder(Order order) {
-        String sqlOrder = "INSERT INTO orders (id, userName, orderDate, totalAmount, note, orderDelive) VALUES (?,?,?,?,?,?)";
-        String sqlDetail = "INSERT INTO order_details (orderDetailId, orderId, productId, unitPrice, quantity, amount) VALUES (?,?,?,?,?,?)";
-
-        try {
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement psOrder = conn.prepareStatement(sqlOrder)) {
-                psOrder.setString(1, order.getId());
-                psOrder.setString(2, order.getUserName());
-                psOrder.setDate(3, Date.valueOf(order.getOrderDate()));
-                psOrder.setDouble(4, order.getTotalAmount());
-                psOrder.setString(5, order.getNote());
-                psOrder.setDate(6, Date.valueOf(order.getOrderDelivery())); 
-                psOrder.executeUpdate();
+    
+    public int getTotalOrders(String type) throws SQLException {
+        String sql = buildQuery(type);
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt("total_orders");
             }
+        }
+        return 0;
+    }
 
-            for (OrderDetail od : order.getDetails()) {
-                try (PreparedStatement psDetail = conn.prepareStatement(sqlDetail)) {
-                    psDetail.setString(1, od.getOrderDetailId());
-                    psDetail.setString(2, od.getOrderId());
-                    psDetail.setString(3, od.getProductId());
-                    psDetail.setDouble(4, od.getPrice());
-                    psDetail.setInt(5, od.getQuantity());
-                    psDetail.setDouble(6, od.getAmount());
-                    psDetail.executeUpdate();
-                }
+    public double getTotalRevenue(String type) throws SQLException {
+        String sql = buildQuery(type);
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getDouble("total_revenue");
             }
+        }
+        return 0;
+    }
 
-            conn.commit();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-            return false;
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+    private String buildQuery(String type) {
+        switch (type) {
+            case "DAY":
+                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
+                        + "FROM orders o "
+                        + "JOIN order_details od ON o.id = od.order_id "
+                        + "WHERE DATE(o.order_date) = CURDATE()";
+            case "WEEK":
+                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
+                        + "FROM orders o "
+                        + "JOIN order_details od ON o.id = od.order_id "
+                        + "WHERE YEARWEEK(o.order_date, 1) = YEARWEEK(CURDATE(), 1)";
+            case "MONTH":
+                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
+                        + "FROM orders o "
+                        + "JOIN order_details od ON o.id = od.order_id "
+                        + "WHERE YEAR(o.order_date) = YEAR(CURDATE()) AND MONTH(o.order_date) = MONTH(CURDATE())";
+            case "YEAR":
+                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
+                        + "FROM orders o "
+                        + "JOIN order_details od ON o.id = od.order_id "
+                        + "WHERE YEAR(o.order_date) = YEAR(CURDATE())";
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type);
         }
     }
 }
