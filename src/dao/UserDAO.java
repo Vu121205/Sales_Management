@@ -58,5 +58,33 @@ public class UserDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+   public boolean changePassword(String username, String oldPass, String newPass) {
+        String sqlCheck = "SELECT * FROM Users WHERE username=? AND password=?";
+        String sqlUpdate = "UPDATE Users SET password=? WHERE username=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
+
+            // mã hóa mật khẩu cũ để so sánh
+            psCheck.setString(1, username);
+            psCheck.setString(2, PasswordUtils.hashPassword(oldPass));
+
+            ResultSet rs = psCheck.executeQuery();
+            if (rs.next()) {
+                try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                    // mã hóa mật khẩu mới trước khi lưu
+                    psUpdate.setString(1, PasswordUtils.hashPassword(newPass));
+                    psUpdate.setString(2, username);
+                    return psUpdate.executeUpdate() > 0;
+                }
+            } else {
+                return false; // sai mật khẩu cũ
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
+    }
 }
