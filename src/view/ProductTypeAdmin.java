@@ -166,7 +166,7 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
                         .addGap(187, 187, 187)
                         .addComponent(jLabel1))
                     .addComponent(btnComeBack))
-                .addContainerGap(144, Short.MAX_VALUE))
+                .addContainerGap(118, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

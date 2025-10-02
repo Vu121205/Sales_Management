@@ -26,7 +26,7 @@ public class ProductManagent extends javax.swing.JFrame {
     
     private void loadProducts() {
         List<Product> list = productDAO.getAllProducts();
-        DefaultTableModel model = (DefaultTableModel) tableProduct.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblProduct.getModel();
         model.setRowCount(0);
         for (Product p : list) {
             model.addRow(new Object[]{
@@ -34,7 +34,8 @@ public class ProductManagent extends javax.swing.JFrame {
                 p.getName(),
                 p.getPrice(),
                 p.getQuantity(),
-                p.getCategoryId()
+                p.getCategoryId(),
+                p.getDescription()
             });
         }
     }
@@ -59,7 +60,7 @@ public class ProductManagent extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableProduct = new javax.swing.JTable();
+        tblProduct = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -74,37 +75,39 @@ public class ProductManagent extends javax.swing.JFrame {
         btnUpdate = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnComeBack = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        txtDescription = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("Quản lý sản phẩm");
 
-        tableProduct.setModel(new javax.swing.table.DefaultTableModel(
+        tblProduct.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Mã sản phẩm", "Tên sản phẩm", "Giá", "Số lượng", "Mã loại"
+                "Mã sản phẩm", "Tên sản phẩm", "Giá", "Số lượng", "Mã loại", "Miêu tả"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Integer.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
         });
-        tableProduct.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblProduct.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableProductMouseClicked(evt);
+                tblProductMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(tableProduct);
+        jScrollPane1.setViewportView(tblProduct);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel2.setText("Nhập mã sản phẩm:");
@@ -168,52 +171,60 @@ public class ProductManagent extends javax.swing.JFrame {
             }
         });
 
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel7.setText("Miêu tả:");
+
+        txtDescription.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(259, 259, 259)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(102, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel6))
-                        .addGap(40, 40, 40)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(45, 45, 45)
-                                .addComponent(btnDelete))
-                            .addComponent(txtId)
-                            .addComponent(txtName)
-                            .addComponent(txtPrice)
-                            .addComponent(txtQuantity)
-                            .addComponent(cbCategoryId, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addGap(104, 104, 104))
-            .addGroup(layout.createSequentialGroup()
                 .addComponent(btnComeBack)
                 .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(49, 49, 49)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 842, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2))
+                                .addGap(40, 40, 40)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(42, 42, 42)
+                                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(btnDelete))
+                                    .addComponent(txtId)
+                                    .addComponent(txtName)
+                                    .addComponent(txtPrice)
+                                    .addComponent(txtQuantity)
+                                    .addComponent(cbCategoryId, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txtDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(358, 358, 358)
+                        .addComponent(jLabel1)))
+                .addContainerGap(61, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(btnComeBack)
-                .addGap(19, 19, 19)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
-                .addGap(44, 44, 44)
+                .addGap(32, 32, 32)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 316, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45)
+                .addGap(42, 42, 42)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -233,12 +244,16 @@ public class ProductManagent extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
                     .addComponent(cbCategoryId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(32, 32, 32)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(txtDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(41, 41, 41)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
                     .addComponent(btnUpdate)
                     .addComponent(btnDelete))
-                .addContainerGap(78, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         pack();
@@ -250,8 +265,9 @@ public class ProductManagent extends javax.swing.JFrame {
         Double price = Double.parseDouble(txtPrice.getText());
         int quantity = Integer.parseInt(txtQuantity.getText());
         String categoryId = (String) cbCategoryId.getSelectedItem();
+        String description = txtDescription.getText();
 
-        Product p = new Product(id, name, price, quantity, categoryId);
+        Product p = new Product(id, name, price, quantity, categoryId, description);
         if (productDAO.insert(p)) {
             JOptionPane.showMessageDialog(this, "Thêm thành công");
             loadProducts();
@@ -266,8 +282,9 @@ public class ProductManagent extends javax.swing.JFrame {
         Double price = Double.parseDouble(txtPrice.getText());
         int quantity = Integer.parseInt(txtQuantity.getText());
         String categoryId = (String) cbCategoryId.getSelectedItem();
+        String description = txtDescription.getText();
 
-        Product p = new Product(id, name, price, quantity, categoryId);
+        Product p = new Product(id, name, price, quantity, categoryId, description);
         if (productDAO.update(p)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thành công");
             loadProducts();
@@ -277,9 +294,9 @@ public class ProductManagent extends javax.swing.JFrame {
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        int selectedRow = tableProduct.getSelectedRow();
+        int selectedRow = tblProduct.getSelectedRow();
         if (selectedRow >= 0) {
-            String id = tableProduct.getValueAt(selectedRow, 0).toString();
+            String id = tblProduct.getValueAt(selectedRow, 0).toString();
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Bạn có chắc muốn xóa sản phẩm " + id + "?",
                     "Xóa sản phẩm", JOptionPane.YES_NO_OPTION);
@@ -310,14 +327,14 @@ public class ProductManagent extends javax.swing.JFrame {
 
     private void tableProductsMouseClicked(java.awt.event.MouseEvent evt) {
         // Lấy dòng đang được chọn
-        int selectedRow = tableProduct.getSelectedRow();
+        int selectedRow = tblProduct.getSelectedRow();
         if (selectedRow >= 0) {
             // Giả sử các column của table là: ID, Name, Price, Quantity, Category
-            String id = tableProduct.getValueAt(selectedRow, 0).toString();
-            String name = tableProduct.getValueAt(selectedRow, 1).toString();
-            String price = tableProduct.getValueAt(selectedRow, 2).toString();
-            String quantity = tableProduct.getValueAt(selectedRow, 3).toString();
-            String categoryId = tableProduct.getValueAt(selectedRow, 4).toString();
+            String id = tblProduct.getValueAt(selectedRow, 0).toString();
+            String name = tblProduct.getValueAt(selectedRow, 1).toString();
+            String price = tblProduct.getValueAt(selectedRow, 2).toString();
+            String quantity = tblProduct.getValueAt(selectedRow, 3).toString();
+            String categoryId = tblProduct.getValueAt(selectedRow, 4).toString();
 
             // Hiển thị lên TextField / ComboBox
             txtId.setText(id);
@@ -328,10 +345,10 @@ public class ProductManagent extends javax.swing.JFrame {
         }
     }
     
-    private void tableProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableProductMouseClicked
+    private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
         // TODO add your handling code here:
         tableProductsMouseClicked(evt);
-    }//GEN-LAST:event_tableProductMouseClicked
+    }//GEN-LAST:event_tblProductMouseClicked
 
     /**
      * @param args the command line arguments
@@ -380,8 +397,10 @@ public class ProductManagent extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable tableProduct;
+    private javax.swing.JTable tblProduct;
+    private javax.swing.JTextField txtDescription;
     private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtName;
     private javax.swing.JTextField txtPrice;

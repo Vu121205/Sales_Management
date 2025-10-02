@@ -1,12 +1,8 @@
 package view;
 
-import dao.DBConnection;
 import dao.OrderDAO;
 import model.Order;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Connection;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +29,7 @@ public class OrderManagement extends javax.swing.JFrame {
     // 1. Nạp dữ liệu Order vào bảng orderTable
     private void loadOrders() {
         List<Order> list = OrderDAO.getAllOrders();
-        DefaultTableModel model = (DefaultTableModel) orderTable.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblOrders.getModel();
         model.setRowCount(0);
         for (Order o : list) {
             model.addRow(new Object[]{
@@ -46,13 +42,13 @@ public class OrderManagement extends javax.swing.JFrame {
             });
         }
         // clear detail table
-        ((DefaultTableModel) tableOrderDetail.getModel()).setRowCount(0);
+        ((DefaultTableModel) tblOrderDetail.getModel()).setRowCount(0);
     }
     
     // Ví dụ trong JFrame hiển thị chi tiết đơn hàng
     private void loadOrderDetails(String orderId) {
         // Lấy model của bảng
-        DefaultTableModel model = (DefaultTableModel) tableOrderDetail.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
         model.setRowCount(0); // xóa các hàng cũ
 
         OrderDAO orderDAO = new OrderDAO();
@@ -60,16 +56,17 @@ public class OrderManagement extends javax.swing.JFrame {
 
         for (OrderDetail od : details) {
             model.addRow(new Object[]{
-                od.getOrderDetailId(),  // cột 1: Mã chi tiết đơn hàng
-                od.getProductId(),      // cột 2: Mã sản phẩm
-                od.getPrice(),          // cột 3: Đơn giá
-                od.getQuantity(),       // cột 4: Số lượng
-                od.getAmount()          // cột 5: Thành tiền (nếu có)
+                od.getOrderDetailId(),  // Mã chi tiết đơn hàng
+                od.getOrderId(),        //mã đơn hàng
+                od.getProductId(),      // Mã sản phẩm
+                od.getPrice(),          // Đơn giá
+                od.getQuantity(),       // Số lượng
+                od.getAmount()          //  Thành tiền (nếu có)
             });
         }
 
         // Gán model lại cho JTable
-        tableOrderDetail.setModel(model);
+        tblOrderDetail.setModel(model);
     }
     
     private void setupStatisticComboBox() {
@@ -131,9 +128,9 @@ public class OrderManagement extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        orderTable = new javax.swing.JTable();
+        tblOrders = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tableOrderDetail = new javax.swing.JTable();
+        tblOrderDetail = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         cbxStatisticType = new javax.swing.JComboBox<>();
         txtTotalRevenue = new javax.swing.JTextField();
@@ -145,7 +142,7 @@ public class OrderManagement extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("Quản lý đơn hàng");
 
-        orderTable.setModel(new javax.swing.table.DefaultTableModel(
+        tblOrders.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -164,14 +161,14 @@ public class OrderManagement extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        orderTable.addMouseListener(new java.awt.event.MouseAdapter() {
+        tblOrders.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                orderTableMouseClicked(evt);
+                tblOrdersMouseClicked(evt);
             }
         });
-        jScrollPane1.setViewportView(orderTable);
+        jScrollPane1.setViewportView(tblOrders);
 
-        tableOrderDetail.setModel(new javax.swing.table.DefaultTableModel(
+        tblOrderDetail.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -190,7 +187,7 @@ public class OrderManagement extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(tableOrderDetail);
+        jScrollPane2.setViewportView(tblOrderDetail);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel2.setText("Thống kê:");
@@ -235,7 +232,7 @@ public class OrderManagement extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 895, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 895, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(923, Short.MAX_VALUE))
+                .addContainerGap(71, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -260,13 +257,13 @@ public class OrderManagement extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void orderTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_orderTableMouseClicked
-        int row = orderTable.getSelectedRow();
+    private void tblOrdersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrdersMouseClicked
+        int row = tblOrders.getSelectedRow();
         if (row != -1) {
-            String orderId = orderTable.getValueAt(row, 0).toString();
+            String orderId = tblOrders.getValueAt(row, 0).toString();
             loadOrderDetails(orderId);
         }
-    }//GEN-LAST:event_orderTableMouseClicked
+    }//GEN-LAST:event_tblOrdersMouseClicked
 
     private void btnComeBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComeBackActionPerformed
         this.dispose();
@@ -317,8 +314,8 @@ public class OrderManagement extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable orderTable;
-    private javax.swing.JTable tableOrderDetail;
+    private javax.swing.JTable tblOrderDetail;
+    private javax.swing.JTable tblOrders;
     private javax.swing.JTextField txtTotalOrders;
     private javax.swing.JTextField txtTotalRevenue;
     // End of variables declaration//GEN-END:variables

@@ -153,7 +153,9 @@ private UserDAO userDAO = new UserDAO();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        System.exit(0);
+        this.dispose();
+        AdminForm admin = new AdminForm();
+        admin.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeActionPerformed

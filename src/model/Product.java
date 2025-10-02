@@ -7,16 +7,18 @@ public class Product {
     private Double price;
     private int quantity;
     private String categoryId; // tham chiếu đến bảng categories 
+    private String description;
    
     public Product() {
     }
 
-    public Product(String id, String name, Double price, int quantity, String categoryId) {
+    public Product(String id, String name, Double price, int quantity, String categoryId, String description) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.quantity = quantity;
         this.categoryId = categoryId;
+        this.description = description;
     }
 
     // Getter & Setter
@@ -58,5 +60,13 @@ public class Product {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

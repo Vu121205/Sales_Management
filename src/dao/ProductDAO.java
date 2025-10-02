@@ -34,7 +34,8 @@ public class ProductDAO {
                     rs.getString("name"),                  
                     rs.getDouble("price"),
                     rs.getInt("quantity"),
-                    rs.getString("category_id")             
+                    rs.getString("category_id"),
+                    rs.getString("description") // 👈 lấy thêm mô tả
                 );
                 list.add(p);
             }
@@ -45,13 +46,14 @@ public class ProductDAO {
     }
 
     public boolean insert(Product p) {
-        String sql = "INSERT INTO products (id, name, price, quantity, category_id) VALUES (?,?,?,?,?)";
+        String sql = "INSERT INTO product (id, name, price, quantity, category_id, description) VALUES (?,?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.getId());
             ps.setString(2, p.getName());
             ps.setDouble(3, p.getPrice());
             ps.setInt(4, p.getQuantity());
             ps.setString(5, p.getCategoryId().trim());
+            ps.setString(6, p.getDescription()); // 👈 thêm mô tả
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -59,14 +61,16 @@ public class ProductDAO {
         }
     }
 
+
     public boolean update(Product p) {
-        String sql = "UPDATE products SET name=?, price=?, quantity=?, category_id=? WHERE id=?";
+        String sql = "UPDATE product SET name=?, price=?, quantity=?, category_id=?, description=? WHERE id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.getName());
             ps.setDouble(2, p.getPrice());
             ps.setInt(3, p.getQuantity());
             ps.setString(4, p.getCategoryId().trim());
-            ps.setString(5, p.getId());
+            ps.setString(5, p.getDescription());
+            ps.setString(6, p.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

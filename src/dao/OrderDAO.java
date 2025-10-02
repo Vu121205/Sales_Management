@@ -126,4 +126,32 @@ public class OrderDAO {
                 throw new IllegalArgumentException("Invalid type: " + type);
         }
     }
+    
+//    Phần của USER
+    public List<Order> getOrdersByUser(String username) {
+        List<Order> orders = new ArrayList<>();
+        String sql = "SELECT id, order_date, delivery_date, created_by, note, total_amount "
+                   + "FROM orders WHERE created_by = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order(
+                        rs.getString("id"),
+                        rs.getDate("order_date").toLocalDate(),
+                        rs.getDate("delivery_date").toLocalDate(),
+                        rs.getString("created_by"),
+                        rs.getString("note"),
+                        rs.getDouble("total_amount")
+                    );
+                    orders.add(o);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
 }
