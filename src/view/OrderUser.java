@@ -2,12 +2,13 @@ package view;
 
 import dao.DBConnection;
 import java.sql.Connection;
-import java.sql.Statement;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import java.sql.ResultSet;
 import javax.swing.table.DefaultTableModel;
 import java.sql.PreparedStatement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 
 
@@ -18,11 +19,16 @@ import java.sql.PreparedStatement;
 public class OrderUser extends javax.swing.JFrame {
     private DefaultTableModel modelProduct;
     private DefaultTableModel modelCart;
+    private String currentUser;
+    // Khai báo biến toàn cục để lưu dòng được chọn trong tblCart
+    private int selectedRow = -1;
     /**
      * Creates new form UserForm
      */
-    public OrderUser(){
+    public OrderUser(String username){
         initComponents();
+        
+        this.currentUser = username;
         
          // khởi tạo model từ table (sau initComponents)
         modelProduct = (DefaultTableModel) tblProduct.getModel();
@@ -144,10 +150,16 @@ public class OrderUser extends javax.swing.JFrame {
         tblCart = new javax.swing.JTable();
         lblTotal = new javax.swing.JLabel();
         btnRemoveToCart = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnConfirm = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblProduct = new javax.swing.JTable();
         txtQuantity = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        taAddress = new javax.swing.JTextArea();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        taNote = new javax.swing.JTextArea();
 
         jToggleButton1.setText("jToggleButton1");
 
@@ -207,6 +219,11 @@ public class OrderUser extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
+        tblCart.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblCartMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblCart);
 
         lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -220,8 +237,13 @@ public class OrderUser extends javax.swing.JFrame {
             }
         });
 
-        jButton4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jButton4.setText("Đặt hàng");
+        btnConfirm.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnConfirm.setText("Đặt hàng");
+        btnConfirm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnConfirmActionPerformed(evt);
+            }
+        });
 
         tblProduct.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -246,61 +268,93 @@ public class OrderUser extends javax.swing.JFrame {
 
         txtQuantity.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel2.setText("Địa chỉ đơn hàng:");
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel3.setText("Ghi chú:");
+
+        taAddress.setColumns(20);
+        taAddress.setRows(5);
+        jScrollPane2.setViewportView(taAddress);
+
+        taNote.setColumns(20);
+        taNote.setRows(5);
+        jScrollPane4.setViewportView(taNote);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 147, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane3)
+                            .addComponent(jScrollPane1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnMinus)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnPlus)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnAddToCart))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnRemoveToCart))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnConfirm)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel3))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 253, Short.MAX_VALUE))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(54, 54, 54)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(lblTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
-                                    .addComponent(btnRemoveToCart)
-                                    .addGap(42, 42, 42)
-                                    .addComponent(jButton4))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                    .addComponent(btnMinus)
-                                    .addGap(19, 19, 19)
-                                    .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(btnPlus)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnAddToCart))
-                                .addComponent(jScrollPane3)
-                                .addComponent(jScrollPane1))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(86, 86, 86)
-                        .addComponent(jLabel1)))
-                .addContainerGap(66, Short.MAX_VALUE))
+                        .addComponent(jLabel1)
+                        .addGap(62, 62, 62)))
+                .addGap(167, 167, 167))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addContainerGap()
                 .addComponent(jLabel1)
-                .addGap(68, 68, 68)
+                .addGap(39, 39, 39)
                 .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(34, 34, 34)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnPlus)
-                    .addComponent(btnMinus)
                     .addComponent(btnAddToCart)
-                    .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(36, 36, 36)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPlus)
+                    .addComponent(btnMinus))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblTotal)
-                    .addComponent(btnRemoveToCart)
-                    .addComponent(jButton4))
-                .addContainerGap(26, Short.MAX_VALUE))
+                    .addComponent(btnRemoveToCart))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(18, 18, 18)
+                .addComponent(btnConfirm)
+                .addContainerGap(54, Short.MAX_VALUE))
         );
 
         pack();
@@ -323,6 +377,7 @@ public class OrderUser extends javax.swing.JFrame {
     }//GEN-LAST:event_cbCategoryActionPerformed
 
     private void btnAddToCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddToCartActionPerformed
+                                  
         int selectedRow = tblProduct.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm!");
@@ -352,20 +407,66 @@ public class OrderUser extends javax.swing.JFrame {
             return;
         }
 
-        double amount = price * quantity;
-
         DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
-        cartModel.addRow(new Object[]{id, name, price, quantity, amount});
-        
-        updateTotal();
+        boolean found = false;
+
+        // duyệt giỏ hàng để kiểm tra sản phẩm đã có chưa
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            String cartId = cartModel.getValueAt(i, 0).toString();
+            if (cartId.equals(id)) {
+                int oldQuantity = Integer.parseInt(cartModel.getValueAt(i, 3).toString());
+                int newQuantity = oldQuantity + quantity;
+
+                if (newQuantity > stock) {
+                    JOptionPane.showMessageDialog(this, "Tổng số lượng vượt quá tồn kho!");
+                    return;
+                }
+
+                // cập nhật số lượng và thành tiền
+                cartModel.setValueAt(newQuantity, i, 3);
+                cartModel.setValueAt(price * newQuantity, i, 4);
+
+                found = true;
+                break;
+            }
+        }
+
+        // nếu chưa có trong giỏ thì thêm mới
+        if (!found) {
+            double amount = price * quantity;
+            cartModel.addRow(new Object[]{id, name, price, quantity, amount});
+        }
+
+        updateTotal(); // cập nhật tổng tiền
     }//GEN-LAST:event_btnAddToCartActionPerformed
 
     private void btnMinusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMinusActionPerformed
         try {
-        int current = Integer.parseInt(txtQuantity.getText().trim());
+            // Nếu chọn giỏ hàng thì giảm trực tiếp trong giỏ
+            int selectedCartRow = tblCart.getSelectedRow();
+            if (selectedCartRow != -1) {
+                DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
+                int quantity = Integer.parseInt(cartModel.getValueAt(selectedCartRow, 3).toString());
+                double price = Double.parseDouble(cartModel.getValueAt(selectedCartRow, 2).toString());
+
+                if (quantity > 1) {
+                    quantity--;
+                    double amount = price * quantity;
+                    cartModel.setValueAt(quantity, selectedCartRow, 3);
+                    cartModel.setValueAt(amount, selectedCartRow, 4);
+                    txtQuantity.setText(String.valueOf(quantity)); // đồng bộ luôn với txtQuantity
+                    updateTotal();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Số lượng tối thiểu là 1!");
+                }
+                return;
+            }
+
+            // Nếu không chọn giỏ, thì giảm txtQuantity
+            int current = Integer.parseInt(txtQuantity.getText().trim());
             if (current > 1) {
                 txtQuantity.setText(String.valueOf(current - 1));
-            } // nếu <=1 thì giữ nguyên
+            }
         } catch (NumberFormatException ex) {
             txtQuantity.setText("1");
         }
@@ -373,29 +474,57 @@ public class OrderUser extends javax.swing.JFrame {
 
     private void btnPlusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlusActionPerformed
         try {
+            // Ưu tiên: nếu chọn giỏ hàng thì tăng trực tiếp trong giỏ
+            int selectedCartRow = tblCart.getSelectedRow();
+            if (selectedCartRow != -1) {
+                DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
+                int quantity = Integer.parseInt(cartModel.getValueAt(selectedCartRow, 3).toString());
+                double price = Double.parseDouble(cartModel.getValueAt(selectedCartRow, 2).toString());
+
+                // kiểm tra tồn kho từ tblProduct nếu cần
+                int stock = 9999; // giả định không giới hạn
+                for (int i = 0; i < tblProduct.getRowCount(); i++) {
+                    if (tblProduct.getValueAt(i, 0).toString().equals(cartModel.getValueAt(selectedCartRow, 0).toString())) {
+                        stock = Integer.parseInt(tblProduct.getValueAt(i, 3).toString());
+                        break;
+                    }
+                }
+
+                if (quantity < stock) {
+                    quantity++;
+                    double amount = price * quantity;
+                    cartModel.setValueAt(quantity, selectedCartRow, 3);
+                    cartModel.setValueAt(amount, selectedCartRow, 4);
+                    txtQuantity.setText(String.valueOf(quantity)); // đồng bộ luôn với txtQuantity
+                    updateTotal();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Đã tới giới hạn tồn kho: " + stock);
+                }
+                return;
+            }
+
+            // Nếu không chọn trong giỏ, thì tăng txtQuantity (đang chọn sản phẩm để thêm)
             int current = Integer.parseInt(txtQuantity.getText().trim());
             int selectedRow = tblProduct.getSelectedRow();
             if (selectedRow != -1) {
-                // giả sử cột tồn kho là cột thứ 4 (index 3)
                 int stock = Integer.parseInt(tblProduct.getValueAt(selectedRow, 3).toString());
                 if (current < stock) {
                     txtQuantity.setText(String.valueOf(current + 1));
                 } else {
-                    // không vượt quá tồn kho
                     txtQuantity.setText(String.valueOf(stock));
                     JOptionPane.showMessageDialog(this, "Đã tới giới hạn tồn kho: " + stock);
                 }
             } else {
-                // nếu chưa chọn sản phẩm, vẫn cho phép tăng (hoặc giữ 1)
                 txtQuantity.setText(String.valueOf(current + 1));
             }
+            
         } catch (NumberFormatException ex) {
             txtQuantity.setText("1");
         }
     }//GEN-LAST:event_btnPlusActionPerformed
 
     private void btnRemoveToCartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveToCartActionPerformed
-         int selectedRow = tblCart.getSelectedRow();
+        int selectedRow = tblCart.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm trong giỏ để xóa!");
             return;
@@ -405,56 +534,65 @@ public class OrderUser extends javax.swing.JFrame {
         cartModel.removeRow(selectedRow); // xóa dòng được chọn
 
         updateTotal(); // gọi hàm cập nhật lại tổng tiền
+        
     }//GEN-LAST:event_btnRemoveToCartActionPerformed
+
+    private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmActionPerformed
+        this.dispose();
+        DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
+        if (cartModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Giỏ hàng trống!");
+            return;
+        }
+
+        String orderId = "O" + System.currentTimeMillis(); // hoặc tự sinh mã đơn
+        String createdBy = currentUser; // user đang login
+        String orderDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String deliveryDate = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        String address = taAddress.getText().trim();
+        String note = taNote.getText().trim();
+
+        if (address.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ!");
+            return;
+        }
+
+        // Mở form xác nhận
+        OrderConfirm confirmForm = new OrderConfirm(orderId, createdBy, orderDate, deliveryDate, address, note, cartModel);
+        confirmForm.setVisible(true);
+    }//GEN-LAST:event_btnConfirmActionPerformed
+
+    private void tblCartMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCartMouseClicked
+        selectedRow = tblCart.getSelectedRow();
+        if (selectedRow != -1) {
+            String quantity = tblCart.getValueAt(selectedRow, 3).toString(); // cột số lượng
+            txtQuantity.setText(quantity); // đồng bộ txtQuantity
+        }
+    }//GEN-LAST:event_tblCartMouseClicked
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(OrderUser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(OrderUser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(OrderUser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(OrderUser.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new OrderUser().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddToCart;
+    private javax.swing.JButton btnConfirm;
     private javax.swing.JButton btnMinus;
     private javax.swing.JButton btnPlus;
     private javax.swing.JButton btnRemoveToCart;
     private javax.swing.JComboBox<String> cbCategory;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JLabel lblTotal;
+    private javax.swing.JTextArea taAddress;
+    private javax.swing.JTextArea taNote;
     private javax.swing.JTable tblCart;
     private javax.swing.JTable tblProduct;
     private javax.swing.JTextField txtQuantity;

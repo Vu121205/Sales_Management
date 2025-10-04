@@ -12,6 +12,7 @@ public class Order {
     private LocalDate orderDate;
     private LocalDate orderDelivery; // ngày giao hàng
     private String createdBy;   // thêm trường này
+    private String address;
     private String note; // ghi chú
     private Double totalAmount;
     private List<OrderDetail> details; // danh sách chi tiết đơn hàng
@@ -20,11 +21,12 @@ public class Order {
     }
 
     public Order(String id, LocalDate orderDate, LocalDate orderDelivery,
-                 String createdBy, String note, Double totalAmount) {
+                 String createdBy,String address, String note, Double totalAmount) {
         this.id = id;
         this.orderDate = orderDate;
         this.orderDelivery = orderDelivery;
         this.createdBy = createdBy;
+        this.address = address;
         this.note = note;
         this.totalAmount = totalAmount;
     }
@@ -68,6 +70,14 @@ public class Order {
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
+    
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getNote() {
         return note;
@@ -92,6 +102,7 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", deliveryDate=" + orderDelivery +
                 ", createdBy='" + createdBy + '\'' +
+                ", address='" + address + '\'' +
                 ", note='" + note + '\'' +
                 ", totalAmount=" + totalAmount +
                 '}';

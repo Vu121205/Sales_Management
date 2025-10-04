@@ -165,7 +165,7 @@ public class LoginForm extends javax.swing.JFrame {
                 admin.setVisible(true);
             } else if ("user".equalsIgnoreCase(u.getRole())) {
                 JOptionPane.showMessageDialog(this,"Đăng nhập thành công");
-                OrderUser user = new OrderUser();
+                OrderUser user = new OrderUser(username);
                 user.setVisible(true);
             }
            // đóng LoginForm và mở AdminForm
