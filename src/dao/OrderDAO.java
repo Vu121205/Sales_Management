@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import model.Order;
 import model.OrderDetail;
+import java.util.UUID;
 
 
 public class OrderDAO {
@@ -154,37 +155,16 @@ public class OrderDAO {
         return orders;
     }
     
+    // Sinh OrderId
     public String generateOrderId() {
-        String sql = "SELECT COUNT(*)+1 FROM Orders";
-        try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            if (rs.next()) {
-                int nextNumber = rs.getInt(1); // lấy cột đầu tiên
-                return String.format("O%09d", nextNumber);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0,9).toUpperCase();
+        return "O" + uuid;  // VD: O9F8A1B2C3
     }
-    
-    // Hàm generate OrderDetailId: VD => OD00000001, OD00000002...
+
+    // Sinh OrderDetailId
     public String generateOrderDetailId() {
-        String prefix = "OD";
-        String sql = "SELECT id FROM Order_Details ORDER BY id DESC LIMIT 1";
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                String lastId = rs.getString("id"); // ví dụ OD00000009
-                if (lastId != null && lastId.startsWith(prefix)) {
-                    int num = Integer.parseInt(lastId.substring(prefix.length())); // bỏ "OD"
-                    return prefix + String.format("%08d", num + 1); // OD00000010
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return prefix + "00000001"; // mặc định nếu chưa có dữ liệu
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        return "OD" + uuid; // VD: OD7C2D9F8A1
     }
 
     
@@ -218,5 +198,14 @@ public class OrderDAO {
         }
 
     }
-
+    
+    public void updateOrderInfo(String orderId, String address, String note) throws SQLException {
+        String sql = "UPDATE Orders SET address=?, note=? WHERE id=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, address);
+            ps.setString(2, note);
+            ps.setString(3, orderId);
+            ps.executeUpdate();
+        }
+    }
 }

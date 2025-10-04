@@ -68,7 +68,6 @@ public class OrderConfirm extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblOrderDetail = new javax.swing.JTable();
         lblTotal = new javax.swing.JLabel();
-        btnEdit = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
         btnConfirm = new javax.swing.JButton();
@@ -77,6 +76,7 @@ public class OrderConfirm extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         taAddress = new javax.swing.JTextArea();
+        btnComeBack = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -136,14 +136,21 @@ public class OrderConfirm extends javax.swing.JFrame {
         lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblTotal.setText("Tổng tiền: ");
 
-        btnEdit.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        btnEdit.setText("Sửa");
-
         btnDelete.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnDelete.setText("Xóa");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnCancel.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnCancel.setText("Thoát");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
 
         btnConfirm.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnConfirm.setText("Xác nhận");
@@ -165,6 +172,14 @@ public class OrderConfirm extends javax.swing.JFrame {
         taAddress.setRows(5);
         jScrollPane3.setViewportView(taAddress);
 
+        btnComeBack.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnComeBack.setText("Quay lại");
+        btnComeBack.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnComeBackActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -175,8 +190,6 @@ public class OrderConfirm extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lblTotal)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnEdit)
-                        .addGap(18, 18, 18)
                         .addComponent(btnDelete)
                         .addGap(18, 18, 18)
                         .addComponent(btnConfirm)
@@ -215,11 +228,15 @@ public class OrderConfirm extends javax.swing.JFrame {
                         .addComponent(jLabel1)
                         .addGap(336, 336, 336)))
                 .addContainerGap(109, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(btnComeBack)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addComponent(btnComeBack)
+                .addGap(25, 25, 25)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -249,12 +266,11 @@ public class OrderConfirm extends javax.swing.JFrame {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnEdit)
                     .addComponent(btnDelete)
                     .addComponent(btnCancel)
                     .addComponent(btnConfirm)
                     .addComponent(lblTotal))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
 
         pack();
@@ -302,15 +318,54 @@ public class OrderConfirm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnConfirmActionPerformed
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int selectedRow = tblOrderDetail.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(this, 
+                "Bạn có chắc muốn xóa sản phẩm này khỏi đơn hàng?", 
+                "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
+            model.removeRow(selectedRow);
+
+            // Cập nhật lại tổng tiền
+            double total = 0;
+            for (int i = 0; i < model.getRowCount(); i++) {
+                total += Double.parseDouble(model.getValueAt(i, 4).toString());
+            }
+            lblTotal.setText("Tổng tiền: " + total);
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnComeBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnComeBackActionPerformed
+        // Lấy thông tin user hiện tại (người đã đăng nhập)
+        String createdBy = txtCreatedBy.getText();
+
+        // Mở lại form OrderUser
+        OrderUser orderUserForm = new OrderUser(createdBy);
+        orderUserForm.setVisible(true);
+
+        // Đóng form hiện tại
+        this.dispose();   
+    }//GEN-LAST:event_btnComeBackActionPerformed
+
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
+    private javax.swing.JButton btnComeBack;
     private javax.swing.JButton btnConfirm;
     private javax.swing.JButton btnDelete;
-    private javax.swing.JButton btnEdit;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
