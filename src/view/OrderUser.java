@@ -162,7 +162,8 @@ public class OrderUser extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         taNote = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        ChangePassword = new javax.swing.JButton();
+        Historty = new javax.swing.JButton();
 
         jToggleButton1.setText("jToggleButton1");
 
@@ -293,11 +294,19 @@ public class OrderUser extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton2.setText("Đổi mật khẩu");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        ChangePassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        ChangePassword.setText("Đổi mật khẩu");
+        ChangePassword.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                ChangePasswordActionPerformed(evt);
+            }
+        });
+
+        Historty.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        Historty.setText("Lịch sử");
+        Historty.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                HistortyActionPerformed(evt);
             }
         });
 
@@ -305,8 +314,9 @@ public class OrderUser extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 164, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(Historty)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -343,8 +353,8 @@ public class OrderUser extends javax.swing.JFrame {
                         .addComponent(jButton1)
                         .addGap(154, 154, 154)
                         .addComponent(jLabel1))
-                    .addComponent(jButton2))
-                .addContainerGap(257, Short.MAX_VALUE))
+                    .addComponent(ChangePassword))
+                .addContainerGap(264, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -352,19 +362,24 @@ public class OrderUser extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel1)
                     .addComponent(jButton1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
-                .addGap(10, 10, 10)
-                .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addComponent(ChangePassword)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(cbCategory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(Historty)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAddToCart)
                     .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnPlus)
                     .addComponent(btnMinus))
-                .addGap(18, 18, 18)
+                .addGap(39, 39, 39)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -380,7 +395,7 @@ public class OrderUser extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
                 .addComponent(btnConfirm)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addGap(34, 34, 34))
         );
 
         pack();
@@ -603,16 +618,24 @@ public class OrderUser extends javax.swing.JFrame {
         login.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void ChangePasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChangePasswordActionPerformed
         ChangePasswordForm changePassWord = new ChangePasswordForm();
         changePassWord.setVisible(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_ChangePasswordActionPerformed
+
+    private void HistortyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_HistortyActionPerformed
+        this.dispose();
+        History_Order history = new History_Order(currentUser);
+        history.setVisible(true);      
+    }//GEN-LAST:event_HistortyActionPerformed
 
     /**
      * @param args the command line arguments
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ChangePassword;
+    private javax.swing.JButton Historty;
     private javax.swing.JButton btnAddToCart;
     private javax.swing.JButton btnConfirm;
     private javax.swing.JButton btnMinus;
@@ -620,7 +643,6 @@ public class OrderUser extends javax.swing.JFrame {
     private javax.swing.JButton btnRemoveToCart;
     private javax.swing.JComboBox<String> cbCategory;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
