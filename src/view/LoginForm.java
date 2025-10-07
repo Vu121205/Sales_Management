@@ -16,6 +16,7 @@ public class LoginForm extends javax.swing.JFrame {
      */
     public LoginForm() {
         initComponents();
+        setLocationRelativeTo(null); // Căn giữa khi khởi động
     }
 
     /**
@@ -135,7 +136,7 @@ public class LoginForm extends javax.swing.JFrame {
                     .addComponent(btnLogin)
                     .addComponent(btnSignup)
                     .addComponent(btnCancel))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();

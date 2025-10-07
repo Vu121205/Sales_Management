@@ -19,6 +19,7 @@ public class OrderConfirm extends javax.swing.JFrame {
                         String address, String note,
                         DefaultTableModel cartModel) {
         initComponents();
+        setLocationRelativeTo(null); // Căn giữa khi khởi động
         // Set dữ liệu vào textfield
         txtOrderId.setText(order.generateOrderId());
         txtCreatedBy.setText(createdBy);

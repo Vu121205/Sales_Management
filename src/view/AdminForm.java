@@ -15,6 +15,7 @@ public class AdminForm extends javax.swing.JFrame {
      */
     public AdminForm() {
         initComponents();
+        setLocationRelativeTo(null); // Căn giữa khi khởi động
         
     }
 
@@ -178,7 +179,7 @@ public class AdminForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnOrderManagementActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.dispose();
+
         ChangePasswordForm changePassword = new ChangePasswordForm();
         changePassword.setVisible(true);
         // TODO add your handling code here:

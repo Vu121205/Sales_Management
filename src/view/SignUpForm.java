@@ -15,6 +15,7 @@ public class SignUpForm extends javax.swing.JFrame {
      */
     public SignUpForm() {
         initComponents();
+        setLocationRelativeTo(null); // Căn giữa khi khởi động
     }
 
     /**
@@ -41,26 +42,26 @@ public class SignUpForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel1.setText("Sign Up");
+        jLabel1.setText("Đăng ký");
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel2.setText("Username:");
+        jLabel2.setText("Tài khoản:");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel3.setText("Password:");
+        jLabel3.setText("Mật khẩu::");
 
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         txtPassword.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
-        btnSignup.setText("SignUp");
+        btnSignup.setText("Đăng ký");
         btnSignup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSignupActionPerformed(evt);
             }
         });
 
-        btnCancel.setText("Cancel");
+        btnCancel.setText("Thoát");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelActionPerformed(evt);
@@ -68,7 +69,7 @@ public class SignUpForm extends javax.swing.JFrame {
         });
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel4.setText("Confirm Password:");
+        jLabel4.setText("Nhập lại mật khẩu:");
 
         txtConfirm.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
@@ -142,7 +143,9 @@ public class SignUpForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        System.exit(0);
+        this.dispose();
+        LoginForm login = new LoginForm();
+        login.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnSignupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignupActionPerformed

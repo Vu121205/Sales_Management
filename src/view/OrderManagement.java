@@ -21,6 +21,7 @@ public class OrderManagement extends javax.swing.JFrame {
      */
     public OrderManagement() {
         initComponents();
+        setLocationRelativeTo(null); // Căn giữa khi khởi động
         orderDAO = new OrderDAO();
         loadOrders();
         setupStatisticComboBox();
