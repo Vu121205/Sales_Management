@@ -168,7 +168,6 @@ public class AdminForm extends javax.swing.JFrame {
         ProductManagent product = new ProductManagent();
         product.setVisible(true);
         
-        // TODO add your handling code here:
     }//GEN-LAST:event_btnProductManagementActionPerformed
 
     private void btnOrderManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrderManagementActionPerformed

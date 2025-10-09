@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import model.Order;
 import model.OrderDetail;
 import java.util.UUID;
+import model.ProductStatistic;
 
 
 public class OrderDAO {
@@ -50,7 +51,6 @@ public class OrderDAO {
         }
         return orders;
     }
-
     // Lấy chi tiết đơn hàng theo orderId
     public List<OrderDetail> getOrderDetails(String orderId) {
         List<OrderDetail> details = new ArrayList<>();
@@ -100,6 +100,7 @@ public class OrderDAO {
         return 0;
     }
 
+//    Thống kê theo thời gian
     private String buildQuery(String type) {
         switch (type) {
             case "DAY":
@@ -126,7 +127,54 @@ public class OrderDAO {
                 throw new IllegalArgumentException("Invalid type: " + type);
         }
     }
+//    Thống kê theo sản phẩm
+    private String buildProductQuery(String type) {
+        String baseQuery = """
+            SELECT 
+                p.name AS product_name,
+                SUM(od.quantity) AS total_quantity,
+                SUM(od.amount) AS total_revenue
+            FROM orders o
+            JOIN order_details od ON o.id = od.order_id
+            JOIN product p ON od.product_id = p.id
+            WHERE p.name = ?
+        """;
+
+        switch (type) {
+            case "DAY":
+                return baseQuery + " AND DATE(o.order_date) = CURDATE() GROUP BY p.name";
+            case "WEEK":
+                return baseQuery + " AND YEARWEEK(o.order_date, 1) = YEARWEEK(CURDATE(), 1) GROUP BY p.name";
+            case "MONTH":
+                return baseQuery + " AND MONTH(o.order_date) = MONTH(CURDATE()) AND YEAR(o.order_date) = YEAR(CURDATE()) GROUP BY p.name";
+            case "YEAR":
+                return baseQuery + " AND YEAR(o.order_date) = YEAR(CURDATE()) GROUP BY p.name";
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type);
+        }
+    }
     
+    public ProductStatistic getProductStatistic(String type, String productName) throws SQLException {
+        String sql = buildProductQuery(type);
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, productName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new ProductStatistic(
+                        rs.getString("product_name"),
+                        rs.getInt("total_quantity"),
+                        rs.getDouble("total_revenue")
+                    );
+                } else {
+                    // Nếu chưa bán sản phẩm nào
+                    return new ProductStatistic(productName, 0, 0.0);
+                }
+            }
+        }
+    }
+
+
 //    Phần của USER
     public List<Order> getOrdersByUser(String username) {
         List<Order> orders = new ArrayList<>();
@@ -154,7 +202,7 @@ public class OrderDAO {
         }
         return orders;
     }
-    
+
     // Sinh OrderId
     public String generateOrderId() {
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0,9).toUpperCase();
@@ -166,8 +214,7 @@ public class OrderDAO {
         String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
         return "OD" + uuid; // VD: OD7C2D9F8A1
     }
-
-    
+ 
     // Thêm Order vào bảng Orders
     public void insertOrder(String id, String orderDate, String deliveryDate,
                             String createdBy, String address, String note, double total) throws SQLException {
@@ -183,7 +230,7 @@ public class OrderDAO {
             ps.executeUpdate();
         }
     }
-
+    
     // Thêm OrderDetail vào bảng Order_Details
     public void insertOrderDetail(String id, String orderId, String productId,
                                   double price, int quantity, double amount) throws SQLException {

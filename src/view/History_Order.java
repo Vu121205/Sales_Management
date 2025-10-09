@@ -1,10 +1,13 @@
 package view;
 
 import dao.DBConnection;
+import dao.OrderDAO;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.*;
 import javax.swing.JOptionPane;
+import model.Order;
+import model.OrderDetail;
 
 /**
  *
@@ -12,6 +15,7 @@ import javax.swing.JOptionPane;
  */
 public class History_Order extends javax.swing.JFrame {
     private String username; // biến lưu tài khoản hiện tại
+    private OrderDAO orderDAO;
     /**
      * Creates new form History_Order
      */
@@ -19,80 +23,56 @@ public class History_Order extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);//Căn giữa khi mở chương trình
         this.username = username;        
-        loadHistory();
+        loadOrders();
     }
     
-    private void loadHistory() {
-        // Tạo model mới với tiêu đề cột
-        DefaultTableModel model = new DefaultTableModel(
-            new Object[]{
-                "Mã chi tiết", 
-                "Mã đơn hàng", 
-                "Mã sản phẩm", 
-                "Tên sản phẩm", 
-                "Ngày đặt", 
-                "Ngày giao", 
-                "Địa chỉ", 
-                "Ghi chú", 
-                "Giá", 
-                "Số lượng", 
-                "Thành tiền"
-            }, 0
-        );
+    // 1. Nạp dữ liệu Order vào bảng orderTable
+    private void loadOrders() {
+        OrderDAO orderDAO = new OrderDAO();
+        List<Order> list = orderDAO.getOrdersByUser(username); // Lọc theo người dùng hiện tại
 
-        String sql = """
-            SELECT 
-                od.id AS order_detail_id,
-                o.id AS order_id,
-                p.id AS product_id,
-                p.name AS product_name,
-                o.order_date,
-                o.delivery_date,
-                o.address,
-                o.note,
-                od.price,
-                od.quantity,
-                (od.price * od.quantity) AS amount
-            FROM order_details od
-            JOIN orders o ON od.order_id = o.id
-            JOIN product p ON od.product_id = p.id
-            WHERE o.created_by = ?
-        """;
+        DefaultTableModel model = (DefaultTableModel) tblOrders.getModel();
+        model.setRowCount(0);
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                    rs.getString("order_detail_id"),
-                    rs.getString("order_id"),
-                    rs.getString("product_id"),
-                    rs.getString("product_name"),
-                    rs.getDate("order_date"),
-                    rs.getDate("delivery_date"),
-                    rs.getString("address"),
-                    rs.getString("note"),
-                    rs.getBigDecimal("price"),
-                    rs.getInt("quantity"),
-                    rs.getBigDecimal("amount")
-                });
-            }
-
-            // Gán model mới có tiêu đề cho JTable
-            tblHistoryOrder.setModel(model);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi tải lịch sử mua hàng: " + e.getMessage());
+        for (Order o : list) {
+            model.addRow(new Object[]{
+                o.getId(),             // Mã đơn hàng
+                o.getOrderDate(),      // Ngày đặt
+                o.getOrderDelivery(),  // Ngày giao
+                o.getCreatedBy(),      // Người đặt
+                o.getAddress(),        // Địa chỉ
+                o.getNote(),           // Ghi chú
+                o.getTotalAmount()     // Tổng tiền
+            });
         }
+
+        // Xóa chi tiết cũ
+        ((DefaultTableModel) tblOrderDetail.getModel()).setRowCount(0);
+        }
+    
+    // Ví dụ trong JFrame hiển thị chi tiết đơn hàng
+    private void loadOrderDetails(String orderId) {
+        // Lấy model của bảng
+        DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
+        model.setRowCount(0); // xóa các hàng cũ
+
+        OrderDAO orderDAO = new OrderDAO();
+        List<OrderDetail> details = orderDAO.getOrderDetails(orderId);
+
+        for (OrderDetail od : details) {
+            model.addRow(new Object[]{
+                od.getOrderDetailId(),  // Mã chi tiết đơn hàng
+                od.getOrderId(),        //mã đơn hàng
+                od.getProductId(),      // Mã sản phẩm
+                od.getPrice(),          // Đơn giá
+                od.getQuantity(),       // Số lượng
+                od.getAmount()          //  Thành tiền (nếu có)
+            });
+        }
+
+        // Gán model lại cho JTable
+        tblOrderDetail.setModel(model);
     }
-
-
-
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -106,8 +86,10 @@ public class History_Order extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btnComeback = new javax.swing.JButton();
-        jScrollPane5 = new javax.swing.JScrollPane();
-        tblHistoryOrder = new javax.swing.JTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tblOrderDetail = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblOrders = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -121,45 +103,69 @@ public class History_Order extends javax.swing.JFrame {
             }
         });
 
-        tblHistoryOrder.setModel(new javax.swing.table.DefaultTableModel(
+        tblOrderDetail.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Mã chi tiết", "Mã đơn hàng", "Mã sản phẩm", "Tên sản phẩm", "Ngày đặt", "Ngày giao", "Địa chỉ", "Ghi chú", "Giá", "Số lượng", "Thành tiền"
+                "Mã chi tiết", "Mã đơn hàng", "Mã sản phẩm", "Giá", "Số lượng", "Thành tiền"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Integer.class, java.lang.Double.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Integer.class, java.lang.Double.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
         });
-        jScrollPane5.setViewportView(tblHistoryOrder);
+        jScrollPane2.setViewportView(tblOrderDetail);
+
+        tblOrders.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "Mã đơn hàng", "Ngày đặt hàng", "Ngày giao hàng", "Người đặt", "Địa chỉ", "Ghi chú", "Tổng số tiền"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        tblOrders.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblOrdersMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblOrders);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addComponent(btnComeback)
+                .addGap(399, 399, 399)
+                .addComponent(jLabel1))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1071, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnComeback)
-                                .addGap(399, 399, 399)
-                                .addComponent(jLabel1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(38, 38, 38)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 533, Short.MAX_VALUE))
-                    .addComponent(jScrollPane5, javax.swing.GroupLayout.Alignment.TRAILING))
-                .addContainerGap())
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1071, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -169,11 +175,16 @@ public class History_Order extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel1))
                     .addComponent(btnComeback))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 215, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(240, 240, 240)
-                .addComponent(jLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(473, 473, 473)
+                        .addComponent(jLabel2))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(40, 40, 40)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
 
         pack();
@@ -185,6 +196,14 @@ public class History_Order extends javax.swing.JFrame {
         order.setVisible(true);
     }//GEN-LAST:event_btnComebackActionPerformed
 
+    private void tblOrdersMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrdersMouseClicked
+        int row = tblOrders.getSelectedRow();
+        if (row != -1) {
+            String orderId = tblOrders.getValueAt(row, 0).toString();
+            loadOrderDetails(orderId);
+        }
+    }//GEN-LAST:event_tblOrdersMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -193,7 +212,9 @@ public class History_Order extends javax.swing.JFrame {
     private javax.swing.JButton btnComeback;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JTable tblHistoryOrder;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable tblOrderDetail;
+    private javax.swing.JTable tblOrders;
     // End of variables declaration//GEN-END:variables
 }

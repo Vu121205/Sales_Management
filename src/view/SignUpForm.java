@@ -48,7 +48,7 @@ public class SignUpForm extends javax.swing.JFrame {
         jLabel2.setText("Tài khoản:");
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel3.setText("Mật khẩu::");
+        jLabel3.setText("Mật khẩu:");
 
         txtUsername.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 

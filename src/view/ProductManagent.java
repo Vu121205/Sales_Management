@@ -19,8 +19,6 @@ public class ProductManagent extends javax.swing.JFrame {
     public ProductManagent() {
         initComponents();
         setLocationRelativeTo(null); // Căn giữa khi khởi động
-        AdminForm admin = new AdminForm();
-        admin.setVisible(true);
         loadProducts();
         loadCategories();
     }

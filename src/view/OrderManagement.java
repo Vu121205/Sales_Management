@@ -1,12 +1,15 @@
 package view;
 
+import dao.DBConnection;
 import dao.OrderDAO;
 import model.Order;
 import java.sql.SQLException;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.OrderDetail;
+import model.ProductStatistic;
+import java.sql.*;
+import java.util.*;
 
 
 /**
@@ -24,7 +27,15 @@ public class OrderManagement extends javax.swing.JFrame {
         setLocationRelativeTo(null); // Căn giữa khi khởi động
         orderDAO = new OrderDAO();
         loadOrders();
+        loadProductsToComboBox();
         setupStatisticComboBox();
+
+        // 🔹 Gọi sự kiện khi chọn sản phẩm để tự động thống kê
+        cbProducts.addActionListener(e -> loadStatistics());
+
+        // 🔹 Không cho chỉnh sửa thủ công kết quả thống kê
+        txtQuantity.setEditable(false);
+        txtTotalRevenue.setEditable(false);
     }
     
     // 1. Nạp dữ liệu Order vào bảng orderTable
@@ -71,6 +82,20 @@ public class OrderManagement extends javax.swing.JFrame {
         tblOrderDetail.setModel(model);
     }
     
+    private void loadProductsToComboBox() {
+        cbProducts.removeAllItems();
+        try (Connection conn = DBConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT name FROM product")) {
+            while (rs.next()) {
+                cbProducts.addItem(rs.getString("name"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
     private void setupStatisticComboBox() {
     // Thêm các lựa chọn thống kê
         cbxStatisticType.removeAllItems();
@@ -106,11 +131,16 @@ public class OrderManagement extends javax.swing.JFrame {
                     break;
             }
 
-            int orders = orderDAO.getTotalOrders(queryType);
-            double revenue = orderDAO.getTotalRevenue(queryType);
-
-            txtTotalOrders.setText("Số đơn: " + orders);
-            txtTotalRevenue.setText("Doanh thu: " + revenue + " VND");
+            // Thống kê theo sản phẩm
+            String selectedProduct = (String) cbProducts.getSelectedItem();
+            if (selectedProduct != null && !selectedProduct.isEmpty()) {
+                ProductStatistic ps = orderDAO.getProductStatistic(queryType, selectedProduct);
+                txtQuantity.setText("Số lượng bán: " + ps.getTotalQuantity());
+                txtTotalRevenue.setText("Doanh thu sản phẩm: " + ps.getTotalRevenue() + " VND");
+            } else {
+                txtQuantity.setText("");
+                txtTotalRevenue.setText("");
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -136,8 +166,9 @@ public class OrderManagement extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         cbxStatisticType = new javax.swing.JComboBox<>();
         txtTotalRevenue = new javax.swing.JTextField();
-        txtTotalOrders = new javax.swing.JTextField();
         btnComeBack = new javax.swing.JButton();
+        cbProducts = new javax.swing.JComboBox<>();
+        txtQuantity = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -195,11 +226,9 @@ public class OrderManagement extends javax.swing.JFrame {
         jLabel2.setText("Thống kê:");
 
         cbxStatisticType.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        cbxStatisticType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Thống kê" }));
+        cbxStatisticType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Thời gian" }));
 
         txtTotalRevenue.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-
-        txtTotalOrders.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
         btnComeBack.setText("Quay lại");
         btnComeBack.addActionListener(new java.awt.event.ActionListener() {
@@ -207,6 +236,11 @@ public class OrderManagement extends javax.swing.JFrame {
                 btnComeBackActionPerformed(evt);
             }
         });
+
+        cbProducts.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        cbProducts.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tên sản phẩm" }));
+
+        txtQuantity.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -218,22 +252,24 @@ public class OrderManagement extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(186, 186, 186)
-                        .addComponent(jLabel2)
-                        .addGap(60, 60, 60)
-                        .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(86, 86, 86)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtTotalOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(477, 477, 477)
+                        .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(49, 49, 49)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1071, Short.MAX_VALUE)
-                            .addComponent(jScrollPane2)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(477, 477, 477)
-                        .addComponent(jLabel1)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1071, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addGap(18, 18, 18)
+                                .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(41, 41, 41)
+                                .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(45, 45, 45)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtTotalRevenue, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
+                                    .addComponent(txtQuantity))))))
                 .addContainerGap(60, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -246,14 +282,16 @@ public class OrderManagement extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtTotalOrders, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(28, 28, 28)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(39, Short.MAX_VALUE))
         );
 
         pack();
@@ -311,6 +349,7 @@ public class OrderManagement extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnComeBack;
+    private javax.swing.JComboBox<String> cbProducts;
     private javax.swing.JComboBox<String> cbxStatisticType;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -318,7 +357,7 @@ public class OrderManagement extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblOrderDetail;
     private javax.swing.JTable tblOrders;
-    private javax.swing.JTextField txtTotalOrders;
+    private javax.swing.JTextField txtQuantity;
     private javax.swing.JTextField txtTotalRevenue;
     // End of variables declaration//GEN-END:variables
 }

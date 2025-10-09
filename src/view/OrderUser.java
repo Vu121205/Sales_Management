@@ -579,7 +579,7 @@ public class OrderUser extends javax.swing.JFrame {
     }//GEN-LAST:event_btnRemoveToCartActionPerformed
 
     private void btnConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmActionPerformed
-        this.dispose();
+        
         DefaultTableModel cartModel = (DefaultTableModel) tblCart.getModel();
         if (cartModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Giỏ hàng trống!");
@@ -598,8 +598,8 @@ public class OrderUser extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập địa chỉ!");
             return;
         }
-
         // Mở form xác nhận
+        this.dispose();
         OrderConfirm confirmForm = new OrderConfirm(orderId, createdBy, orderDate, deliveryDate, address, note, cartModel);
         confirmForm.setVisible(true);
     }//GEN-LAST:event_btnConfirmActionPerformed
