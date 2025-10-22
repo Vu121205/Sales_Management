@@ -35,7 +35,7 @@ public class ProductDAO {
                     rs.getDouble("price"),
                     rs.getInt("quantity"),
                     rs.getString("category_id"),
-                    rs.getString("description") // 👈 lấy thêm mô tả
+                    rs.getString("description") //lấy thêm mô tả
                 );
                 list.add(p);
             }
@@ -53,7 +53,7 @@ public class ProductDAO {
             ps.setDouble(3, p.getPrice());
             ps.setInt(4, p.getQuantity());
             ps.setString(5, p.getCategoryId().trim());
-            ps.setString(6, p.getDescription()); // 👈 thêm mô tả
+            ps.setString(6, p.getDescription()); //thêm mô tả
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,7 +79,7 @@ public class ProductDAO {
     }
 
     public boolean delete(String id) {
-        String sql = "DELETE FROM products WHERE id=?";
+        String sql = "DELETE FROM product WHERE id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             return ps.executeUpdate() > 0;

@@ -44,6 +44,7 @@ public class AdminForm extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         btnCancel = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        btnPromotions = new javax.swing.JButton();
 
         jMenu1.setText("jMenu1");
 
@@ -112,6 +113,14 @@ public class AdminForm extends javax.swing.JFrame {
             }
         });
 
+        btnPromotions.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnPromotions.setText("Tạo khuyến mãi");
+        btnPromotions.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPromotionsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -127,7 +136,8 @@ public class AdminForm extends javax.swing.JFrame {
                     .addComponent(btnProductTypeManagement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnOrderManagement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPromotions, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(155, 155, 155))
         );
         layout.setVerticalGroup(
@@ -141,11 +151,13 @@ public class AdminForm extends javax.swing.JFrame {
                 .addComponent(btnProductManagement)
                 .addGap(18, 18, 18)
                 .addComponent(btnOrderManagement)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
+                .addComponent(btnPromotions)
+                .addGap(18, 18, 18)
                 .addComponent(btnCancel)
-                .addGap(35, 35, 35))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         pack();
@@ -165,7 +177,7 @@ public class AdminForm extends javax.swing.JFrame {
 
     private void btnProductManagementActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProductManagementActionPerformed
         this.dispose();
-        ProductManagent product = new ProductManagent();
+        ProductManagement product = new ProductManagement();
         product.setVisible(true);
         
     }//GEN-LAST:event_btnProductManagementActionPerformed
@@ -183,6 +195,12 @@ public class AdminForm extends javax.swing.JFrame {
         changePassword.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnPromotionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPromotionsActionPerformed
+        this.dispose();
+        PromotionManagement promotion = new PromotionManagement();
+        promotion.setVisible(true);
+    }//GEN-LAST:event_btnPromotionsActionPerformed
 
     /**
      * @param args the command line arguments
@@ -225,6 +243,7 @@ public class AdminForm extends javax.swing.JFrame {
     private javax.swing.JButton btnOrderManagement;
     private javax.swing.JButton btnProductManagement;
     private javax.swing.JButton btnProductTypeManagement;
+    private javax.swing.JButton btnPromotions;
     private javax.swing.JButton jButton1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel2;
