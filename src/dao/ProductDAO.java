@@ -23,6 +23,7 @@ public class ProductDAO {
         }
     }
     
+    //lấy product từ database
     public List<Product> getAllProducts() {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT * FROM product";
@@ -35,7 +36,8 @@ public class ProductDAO {
                     rs.getDouble("price"),
                     rs.getInt("quantity"),
                     rs.getString("category_id"),
-                    rs.getString("description") //lấy thêm mô tả
+                    rs.getString("description"), //lấy thêm mô tả
+                    rs.getString("image_path")
                 );
                 list.add(p);
             }
@@ -44,9 +46,29 @@ public class ProductDAO {
         }
         return list;
     }
+    
+    public String getImagePathById(String id) {
+        String imagePath = null;
+        String sql = "SELECT image_path FROM product WHERE id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    imagePath = rs.getString("image_path");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return imagePath;
+    }
+
+
 
     public boolean insert(Product p) {
-        String sql = "INSERT INTO product (id, name, price, quantity, category_id, description) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO product (id, name, price, quantity, category_id, description, image_path) VALUES (?,?,?,?,?,?,?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.getId());
             ps.setString(2, p.getName());
@@ -54,6 +76,7 @@ public class ProductDAO {
             ps.setInt(4, p.getQuantity());
             ps.setString(5, p.getCategoryId().trim());
             ps.setString(6, p.getDescription()); //thêm mô tả
+            ps.setString(7, p.getImage());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,14 +86,15 @@ public class ProductDAO {
 
 
     public boolean update(Product p) {
-        String sql = "UPDATE product SET name=?, price=?, quantity=?, category_id=?, description=? WHERE id=?";
+        String sql = "UPDATE product SET name=?, price=?, quantity=?, category_id=?, description=?, image_path=? WHERE id=?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, p.getName());
             ps.setDouble(2, p.getPrice());
             ps.setInt(3, p.getQuantity());
             ps.setString(4, p.getCategoryId().trim());
             ps.setString(5, p.getDescription());
-            ps.setString(6, p.getId());
+            ps.setString(6, p.getImage());
+            ps.setString(7, p.getId());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,9 +1,13 @@
 package view;
 
+import dao.ProductDAO;
 import dao.OrderDAO;
 import dao.PromotionDAO;
+import java.awt.Image;
+import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import model.Promotion;
@@ -15,6 +19,7 @@ import model.Promotion;
  */
 public class OrderConfirm extends javax.swing.JFrame {
     OrderDAO order = new OrderDAO();
+    ProductDAO productDAO = new ProductDAO();
     PromotionDAO dao = new PromotionDAO();
     DefaultTableModel model;
     double discountPercent = 0;
@@ -37,7 +42,7 @@ public class OrderConfirm extends javax.swing.JFrame {
         taNote.setText(note);
 
         // Copy dữ liệu từ cartModel sang tblOrderDetail
-        DefaultTableModel confirmModel = (DefaultTableModel) tblOrderDetail.getModel();
+        DefaultTableModel confirmModel = (DefaultTableModel) tblCart.getModel();
         confirmModel.setRowCount(0); // xoá tất cả các dòng cũ trước khi thêm mới
         double total = 0;
         for (int i = 0; i < cartModel.getRowCount(); i++) {
@@ -78,7 +83,7 @@ public class OrderConfirm extends javax.swing.JFrame {
     
     //Cập nhật lại giá sau khi áp dụng khuyến mãi
     private void updateTotalWithDiscount() {
-        DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
+        DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
         double total = 0;
 
         // Tính tổng tiền gốc của đơn hàng
@@ -125,7 +130,7 @@ public class OrderConfirm extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         taNote = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tblOrderDetail = new javax.swing.JTable();
+        tblCart = new javax.swing.JTable();
         lblTotal = new javax.swing.JLabel();
         btnDelete = new javax.swing.JButton();
         btnCancel = new javax.swing.JButton();
@@ -142,6 +147,7 @@ public class OrderConfirm extends javax.swing.JFrame {
         jScrollPane4 = new javax.swing.JScrollPane();
         tblPromotion = new javax.swing.JTable();
         jLabel9 = new javax.swing.JLabel();
+        lblImage = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -168,7 +174,7 @@ public class OrderConfirm extends javax.swing.JFrame {
         taNote.setRows(5);
         jScrollPane1.setViewportView(taNote);
 
-        tblOrderDetail.setModel(new javax.swing.table.DefaultTableModel(
+        tblCart.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -187,7 +193,12 @@ public class OrderConfirm extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane2.setViewportView(tblOrderDetail);
+        tblCart.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblCartMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tblCart);
 
         lblTotal.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblTotal.setText("Tổng tiền: ");
@@ -271,6 +282,8 @@ public class OrderConfirm extends javax.swing.JFrame {
         jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel9.setText("Áp dụng khuyến mãi ");
 
+        lblImage.setText("jLabel8");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -282,58 +295,61 @@ public class OrderConfirm extends javax.swing.JFrame {
                 .addGap(93, 93, 93)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel9)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(lblTotal)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnDelete)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnConfirm)
-                            .addGap(18, 18, 18)
-                            .addComponent(btnCancel))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel3)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(27, 27, 27)
-                                            .addComponent(lblOrderId))
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(13, 13, 13)
-                                            .addComponent(txtCreateBy))))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel7)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(lblCreatedBy)))
-                            .addGap(40, 40, 40)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel5)
-                                    .addGap(40, 40, 40)
-                                    .addComponent(lblDeliveryDate)
-                                    .addGap(287, 287, 287))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel6)
-                                        .addComponent(jLabel4))
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(40, 40, 40)
-                                            .addComponent(lblOrderDate))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                        .addComponent(jScrollPane2)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addGap(336, 336, 336))
-                        .addComponent(jScrollPane4)))
-                .addContainerGap(109, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblTotal)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnDelete)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnConfirm)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnCancel))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(27, 27, 27)
+                                                .addComponent(lblOrderId))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(13, 13, 13)
+                                                .addComponent(txtCreateBy))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel7)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(lblCreatedBy)))
+                                .addGap(40, 40, 40)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel5)
+                                        .addGap(40, 40, 40)
+                                        .addComponent(lblDeliveryDate)
+                                        .addGap(287, 287, 287))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel6)
+                                            .addComponent(jLabel4))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addGap(40, 40, 40)
+                                                .addComponent(lblOrderDate))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                            .addComponent(jScrollPane2)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1)
+                                .addGap(336, 336, 336))
+                            .addComponent(jScrollPane4))
+                        .addGap(35, 35, 35)
+                        .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(74, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -351,7 +367,29 @@ public class OrderConfirm extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
                             .addComponent(txtCreateBy)
-                            .addComponent(lblCreatedBy)))
+                            .addComponent(lblCreatedBy))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel7)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addGap(34, 34, 34)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                        .addComponent(jLabel9)
+                        .addGap(32, 32, 32)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnDelete)
+                            .addComponent(btnCancel)
+                            .addComponent(btnConfirm)
+                            .addComponent(lblTotal))
+                        .addGap(63, 63, 63))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
@@ -359,26 +397,8 @@ public class OrderConfirm extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(lblDeliveryDate))))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel6)
-                    .addComponent(jLabel7)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addGap(34, 34, 34)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                .addComponent(jLabel9)
-                .addGap(32, 32, 32)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnDelete)
-                    .addComponent(btnCancel)
-                    .addComponent(btnConfirm)
-                    .addComponent(lblTotal))
-                .addGap(63, 63, 63))
+                            .addComponent(lblDeliveryDate))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         pack();
@@ -394,7 +414,7 @@ public class OrderConfirm extends javax.swing.JFrame {
             String note = taNote.getText();
             double totalAmount = 0;
 
-            DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
+            DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
             for (int i = 0; i < model.getRowCount(); i++) {
                 totalAmount += Double.parseDouble(model.getValueAt(i, 4).toString());
             }
@@ -436,7 +456,7 @@ public class OrderConfirm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnConfirmActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        int selectedRow = tblOrderDetail.getSelectedRow();
+        int selectedRow = tblCart.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm để xóa!");
             return;
@@ -446,7 +466,7 @@ public class OrderConfirm extends javax.swing.JFrame {
                 "Bạn có chắc muốn xóa sản phẩm này khỏi đơn hàng?", 
                 "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            DefaultTableModel model = (DefaultTableModel) tblOrderDetail.getModel();
+            DefaultTableModel model = (DefaultTableModel) tblCart.getModel();
             model.removeRow(selectedRow);
 
             // Cập nhật lại tổng tiền
@@ -493,6 +513,35 @@ public class OrderConfirm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tblPromotionMouseClicked
 
+    private void tblCartMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCartMouseClicked
+        int selectedRow = tblCart.getSelectedRow();
+        if (selectedRow >= 0) {
+            String id = tblCart.getValueAt(selectedRow, 0).toString();
+
+            // Lấy thông tin sản phẩm từ DB
+            String imagePath = productDAO.getImagePathById(id);
+
+            if (imagePath != null && !imagePath.isEmpty()) {
+                // Chuyển lại đường dẫn về đúng dạng Windows
+                imagePath = imagePath.replace("\\\\", "\\");
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    ImageIcon icon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath())
+                        .getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH));
+                    lblImage.setIcon(icon);
+                    lblImage.setText("");
+                } else {
+                    lblImage.setIcon(null);
+                    lblImage.setText("Ảnh không tồn tại");
+                }
+            } else {
+                lblImage.setIcon(null);
+                lblImage.setText("Chưa có ảnh");
+            }
+        }
+    }//GEN-LAST:event_tblCartMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -516,12 +565,13 @@ public class OrderConfirm extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblCreatedBy;
     private javax.swing.JLabel lblDeliveryDate;
+    private javax.swing.JLabel lblImage;
     private javax.swing.JLabel lblOrderDate;
     private javax.swing.JLabel lblOrderId;
     private javax.swing.JLabel lblTotal;
     private javax.swing.JTextArea taAddress;
     private javax.swing.JTextArea taNote;
-    private javax.swing.JTable tblOrderDetail;
+    private javax.swing.JTable tblCart;
     private javax.swing.JTable tblPromotion;
     private javax.swing.JLabel txtCreateBy;
     // End of variables declaration//GEN-END:variables

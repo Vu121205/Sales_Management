@@ -2,8 +2,13 @@ package view;
 
 import dao.CategoryDAO;
 import dao.ProductDAO;
+import java.awt.Image;
+import java.io.File;
 import java.util.List;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import model.Category;
 import model.Product;
@@ -15,6 +20,7 @@ import model.Product;
 public class ProductManagement extends javax.swing.JFrame {
 
     private ProductDAO productDAO = new ProductDAO();
+    private String selectedImagePath = null;
 
     public ProductManagement() {
         initComponents();
@@ -47,6 +53,18 @@ public class ProductManagement extends javax.swing.JFrame {
             cbCategoryId.addItem(c.getId());
         }
     }
+    
+    private void cleanForm()
+    {
+        txtId.setText("");
+        txtName.setText("");
+        txtPrice.setText("");
+        txtQuantity.setText("");
+        txtDescription.setText("");
+        cbCategoryId.setSelectedIndex(0);
+        lblImage.setIcon(null);
+        lblImage.setText("Chưa chọn ảnh");
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -76,6 +94,8 @@ public class ProductManagement extends javax.swing.JFrame {
         btnComeBack = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         txtDescription = new javax.swing.JTextField();
+        lblImage = new javax.swing.JLabel();
+        btnChooseImage = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -163,6 +183,7 @@ public class ProductManagement extends javax.swing.JFrame {
             }
         });
 
+        btnComeBack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnComeBack.setText("Quay lại");
         btnComeBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -175,6 +196,16 @@ public class ProductManagement extends javax.swing.JFrame {
 
         txtDescription.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
+        lblImage.setText("jLabel8");
+
+        btnChooseImage.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnChooseImage.setText("chọn ảnh");
+        btnChooseImage.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnChooseImageActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -185,73 +216,88 @@ public class ProductManagement extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(49, 49, 49)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGap(34, 34, 34)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 842, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel7)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel2))
-                                .addGap(40, 40, 40)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addGap(42, 42, 42)
                                         .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addGap(43, 43, 43)
                                         .addComponent(btnDelete))
-                                    .addComponent(txtId)
-                                    .addComponent(txtName)
-                                    .addComponent(txtPrice)
-                                    .addComponent(txtQuantity)
-                                    .addComponent(cbCategoryId, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtDescription, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel4)
+                                            .addComponent(jLabel7)
+                                            .addComponent(jLabel6)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel2)
+                                            .addComponent(jLabel5))
+                                        .addGap(29, 29, 29)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txtQuantity)
+                                            .addComponent(cbCategoryId, 0, 326, Short.MAX_VALUE)
+                                            .addComponent(txtName)
+                                            .addComponent(txtDescription)
+                                            .addComponent(txtId)
+                                            .addComponent(txtPrice, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))))
+                                .addGap(57, 57, 57)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnChooseImage)
+                                    .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(358, 358, 358)
+                        .addGap(353, 353, 353)
                         .addComponent(jLabel1)))
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(btnComeBack)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
-                .addGap(32, 32, 32)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(30, 30, 30)
+                .addGap(33, 33, 33)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel6)
-                    .addComponent(cbCategoryId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(txtDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(41, 41, 41)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnAdd)
-                    .addComponent(btnUpdate)
-                    .addComponent(btnDelete))
+                    .addComponent(btnChooseImage))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(jLabel4))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(txtPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(cbCategoryId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel7)
+                            .addComponent(txtDescription, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(39, 39, 39)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAdd)
+                            .addComponent(btnUpdate)
+                            .addComponent(btnDelete)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(31, 31, 31)
+                        .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(40, Short.MAX_VALUE))
         );
 
@@ -259,36 +305,65 @@ public class ProductManagement extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        String id = txtId.getText();
-        String name = txtName.getText();
-        Double price = Double.parseDouble(txtPrice.getText());
-        int quantity = Integer.parseInt(txtQuantity.getText());
-        String categoryId = (String) cbCategoryId.getSelectedItem();
-        String description = txtDescription.getText();
+        try {
+            String id = txtId.getText().trim();
+            String name = txtName.getText().trim();
+            double price = Double.parseDouble(txtPrice.getText().trim());
+            int quantity = Integer.parseInt(txtQuantity.getText().trim());
+            String categoryId = (String) cbCategoryId.getSelectedItem();
+            String description = txtDescription.getText().trim();
 
-        Product p = new Product(id, name, price, quantity, categoryId, description);
-        if (productDAO.insert(p)) {
-            JOptionPane.showMessageDialog(this, "Thêm thành công");
-            loadProducts();
-        } else {
-            JOptionPane.showMessageDialog(this, "Thêm thất bại");
+            // Nếu chưa chọn ảnh
+            if (selectedImagePath == null || selectedImagePath.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn ảnh cho sản phẩm!");
+                return;
+            }
+
+            // Chuẩn hóa đường dẫn để lưu được trong MySQL
+            String dbImagePath = selectedImagePath.replace("\\", "\\\\");
+
+            Product p = new Product(id, name, price, quantity, categoryId, description, dbImagePath);
+            if (productDAO.insert(p)) {
+                JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!");
+                loadProducts();
+                cleanForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm thất bại!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm sản phẩm: " + e.getMessage());
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        String id = txtId.getText();
-        String name = txtName.getText();
-        Double price = Double.parseDouble(txtPrice.getText());
-        int quantity = Integer.parseInt(txtQuantity.getText());
-        String categoryId = (String) cbCategoryId.getSelectedItem();
-        String description = txtDescription.getText();
+        try {
+            String id = txtId.getText().trim();
+            String name = txtName.getText().trim();
+            double price = Double.parseDouble(txtPrice.getText().trim());
+            int quantity = Integer.parseInt(txtQuantity.getText().trim());
+            String categoryId = (String) cbCategoryId.getSelectedItem();
+            String description = txtDescription.getText().trim();
 
-        Product p = new Product(id, name, price, quantity, categoryId, description);
-        if (productDAO.update(p)) {
-            JOptionPane.showMessageDialog(this, "Cập nhật thành công");
-            loadProducts();
-        } else {
-            JOptionPane.showMessageDialog(this, "Cập nhật thất bại");
+            // Nếu chưa chọn ảnh mới lấy ảnh cũ từ DB
+            if (selectedImagePath == null || selectedImagePath.isEmpty()) {
+                selectedImagePath = productDAO.getImagePathById(id);
+            }
+
+            // Chuẩn hóa đường dẫn
+            String dbImagePath = selectedImagePath.replace("\\", "\\\\");
+
+            Product p = new Product(id, name, price, quantity, categoryId, description, dbImagePath);
+            if (productDAO.update(p)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                loadProducts();
+                cleanForm();
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật sản phẩm: " + e.getMessage());
         }
     }//GEN-LAST:event_btnUpdateActionPerformed
 
@@ -303,6 +378,7 @@ public class ProductManagement extends javax.swing.JFrame {
                 if (productDAO.delete(id)) {
                     JOptionPane.showMessageDialog(this, "Xóa thành công");
                     loadProducts();
+                    cleanForm();
                 } else {
                     JOptionPane.showMessageDialog(this, "Xóa thất bại");
                 }
@@ -324,30 +400,60 @@ public class ProductManagement extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_cbCategoryIdActionPerformed
 
-    private void tableProductsMouseClicked(java.awt.event.MouseEvent evt) {
-        // Lấy dòng đang được chọn
+    private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
         int selectedRow = tblProduct.getSelectedRow();
         if (selectedRow >= 0) {
-            // Giả sử các column của table là: ID, Name, Price, Quantity, Category
             String id = tblProduct.getValueAt(selectedRow, 0).toString();
-            String name = tblProduct.getValueAt(selectedRow, 1).toString();
-            String price = tblProduct.getValueAt(selectedRow, 2).toString();
-            String quantity = tblProduct.getValueAt(selectedRow, 3).toString();
-            String categoryId = tblProduct.getValueAt(selectedRow, 4).toString();
 
-            // Hiển thị lên TextField / ComboBox
-            txtId.setText(id);
-            txtName.setText(name);
-            txtPrice.setText(price);
-            txtQuantity.setText(quantity);
-            cbCategoryId.setSelectedItem(categoryId);
+            // Lấy thông tin sản phẩm từ DB
+            String imagePath = productDAO.getImagePathById(id);
+
+            if (imagePath != null && !imagePath.isEmpty()) {
+                // Chuyển lại đường dẫn về đúng dạng Windows
+                imagePath = imagePath.replace("\\\\", "\\");
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    ImageIcon icon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath())
+                        .getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH));
+                    lblImage.setIcon(icon);
+                    lblImage.setText("");
+                } else {
+                    lblImage.setIcon(null);
+                    lblImage.setText("Ảnh không tồn tại");
+                }
+            } else {
+                lblImage.setIcon(null);
+                lblImage.setText("Chưa có ảnh");
+            }
+
+            // Hiển thị thông tin sản phẩm khác
+            txtId.setText(tblProduct.getValueAt(selectedRow, 0).toString());
+            txtName.setText(tblProduct.getValueAt(selectedRow, 1).toString());
+            txtPrice.setText(tblProduct.getValueAt(selectedRow, 2).toString());
+            txtQuantity.setText(tblProduct.getValueAt(selectedRow, 3).toString());
+            cbCategoryId.setSelectedItem(tblProduct.getValueAt(selectedRow, 4).toString());
+            txtDescription.setText(tblProduct.getValueAt(selectedRow, 5).toString());
         }
-    }
-    
-    private void tblProductMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProductMouseClicked
-        // TODO add your handling code here:
-        tableProductsMouseClicked(evt);
+        
     }//GEN-LAST:event_tblProductMouseClicked
+
+    private void btnChooseImageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChooseImageActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(new FileNameExtensionFilter("Hình ảnh", "jpg", "jpeg", "png"));
+
+        int result = chooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            selectedImagePath = file.getAbsolutePath();
+
+            // Hiển thị ảnh trong lblImage
+            ImageIcon icon = new ImageIcon(new ImageIcon(selectedImagePath)
+                .getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH));
+            lblImage.setIcon(icon);
+            lblImage.setText("");
+        }
+    }//GEN-LAST:event_btnChooseImageActionPerformed
 
     /**
      * @param args the command line arguments
@@ -387,6 +493,7 @@ public class ProductManagement extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnChooseImage;
     private javax.swing.JButton btnComeBack;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnUpdate;
@@ -399,6 +506,7 @@ public class ProductManagement extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblImage;
     private javax.swing.JTable tblProduct;
     private javax.swing.JTextField txtDescription;
     private javax.swing.JTextField txtId;

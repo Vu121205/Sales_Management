@@ -155,6 +155,8 @@ private UserDAO userDAO = new UserDAO();
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         this.dispose();
+        AdminForm admin = new AdminForm();
+        admin.setVisible(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeActionPerformed

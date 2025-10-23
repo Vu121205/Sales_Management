@@ -33,6 +33,11 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
             model.addRow(new Object[]{c.getId(), c.getName()});
         }
     }
+    private void cleanForm()
+    {
+        txtId.setText("");
+        txtName.setText("");
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -129,6 +134,7 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
         btnRefresh.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnRefresh.setText("Làm mới");
 
+        btnComeBack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnComeBack.setText("Quay lại");
         btnComeBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -195,7 +201,8 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
                     .addComponent(btnAdd)
                     .addComponent(btnUpdate)
                     .addComponent(btnDelete)
-                    .addComponent(btnRefresh)))
+                    .addComponent(btnRefresh))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
@@ -213,6 +220,7 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
         if (dao.insertCategory(c)) {
             JOptionPane.showMessageDialog(this, "Thêm thành công");
             loadData();
+            cleanForm();
         } else {
             JOptionPane.showMessageDialog(this, "Thêm thất bại");
         }
@@ -225,6 +233,7 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
         if (dao.updateCategory(c)) {
             JOptionPane.showMessageDialog(this, "Cập nhật thành công");
             loadData();
+            cleanForm();
         } else {
             JOptionPane.showMessageDialog(this, "Cập nhật thất bại");
         }
@@ -235,6 +244,7 @@ public class ProductTypeAdmin extends javax.swing.JFrame {
         if (dao.deleteCategory(id)) {
             JOptionPane.showMessageDialog(this, "Xóa thành công");
             loadData();
+            cleanForm();
         } else {
             JOptionPane.showMessageDialog(this, "Xóa thất bại");
         }

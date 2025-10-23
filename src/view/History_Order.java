@@ -1,10 +1,14 @@
 package view;
 
+import dao.ProductDAO;
 import dao.DBConnection;
 import dao.OrderDAO;
+import java.awt.Image;
+import java.io.File;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.*;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import model.Order;
 import model.OrderDetail;
@@ -14,8 +18,10 @@ import model.OrderDetail;
  * @author ADMIN
  */
 public class History_Order extends javax.swing.JFrame {
+    
     private String username; // biến lưu tài khoản hiện tại
     private OrderDAO orderDAO;
+    private ProductDAO productDAO = new ProductDAO();
     /**
      * Creates new form History_Order
      */
@@ -90,12 +96,14 @@ public class History_Order extends javax.swing.JFrame {
         tblOrderDetail = new javax.swing.JTable();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblOrders = new javax.swing.JTable();
+        lblImage = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setText("Lịch sử mua hàng");
 
+        btnComeback.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnComeback.setText("Quay lại");
         btnComeback.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -120,6 +128,11 @@ public class History_Order extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        tblOrderDetail.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblOrderDetailMouseClicked(evt);
             }
         });
         jScrollPane2.setViewportView(tblOrderDetail);
@@ -150,6 +163,8 @@ public class History_Order extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblOrders);
 
+        lblImage.setText("jLabel3");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -161,11 +176,13 @@ public class History_Order extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(38, 38, 38)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1071, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 1071, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 788, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lblImage, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1071, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -178,13 +195,16 @@ public class History_Order extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(473, 473, 473)
-                        .addComponent(jLabel2))
+                        .addComponent(jLabel2)
+                        .addContainerGap(87, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(31, 31, 31)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(40, 40, 40)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(65, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lblImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(47, 47, 47))))
         );
 
         pack();
@@ -204,6 +224,35 @@ public class History_Order extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tblOrdersMouseClicked
 
+    private void tblOrderDetailMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderDetailMouseClicked
+        int selectedRow = tblOrderDetail.getSelectedRow();
+        if (selectedRow >= 0) {
+            String id = tblOrderDetail.getValueAt(selectedRow, 2).toString();
+
+            // Lấy thông tin sản phẩm từ DB
+            String imagePath = productDAO.getImagePathById(id);
+
+            if (imagePath != null && !imagePath.isEmpty()) {
+                // Chuyển lại đường dẫn về đúng dạng Windows
+                imagePath = imagePath.replace("\\\\", "\\");
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    ImageIcon icon = new ImageIcon(new ImageIcon(imageFile.getAbsolutePath())
+                        .getImage().getScaledInstance(lblImage.getWidth(), lblImage.getHeight(), Image.SCALE_SMOOTH));
+                    lblImage.setIcon(icon);
+                    lblImage.setText("");
+                } else {
+                    lblImage.setIcon(null);
+                    lblImage.setText("Ảnh không tồn tại");
+                }
+            } else {
+                lblImage.setIcon(null);
+                lblImage.setText("Chưa có ảnh");
+            }
+        }
+    }//GEN-LAST:event_tblOrderDetailMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -214,6 +263,7 @@ public class History_Order extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblImage;
     private javax.swing.JTable tblOrderDetail;
     private javax.swing.JTable tblOrders;
     // End of variables declaration//GEN-END:variables
