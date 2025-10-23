@@ -9,6 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import model.OrderDetail;
 import model.ProductStatistic;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -28,17 +30,13 @@ public class OrderManagement extends javax.swing.JFrame {
         orderDAO = new OrderDAO();
         loadOrders();
         loadProductsToComboBox();
-        setupStatisticComboBox();
 
-        // 🔹 Gọi sự kiện khi chọn sản phẩm để tự động thống kê
-        cbProducts.addActionListener(e -> loadStatistics());
-
-        // 🔹 Không cho chỉnh sửa thủ công kết quả thống kê
+        // Không cho chỉnh sửa thủ công kết quả thống kê
         txtQuantity.setEditable(false);
         txtTotalRevenue.setEditable(false);
     }
     
-    // 1. Nạp dữ liệu Order vào bảng orderTable
+    // Nạp dữ liệu Order vào bảng orderTable
     private void loadOrders() {
         List<Order> list = OrderDAO.getAllOrders();
         DefaultTableModel model = (DefaultTableModel) tblOrders.getModel();
@@ -95,59 +93,6 @@ public class OrderManagement extends javax.swing.JFrame {
         }
     }
 
-    
-    private void setupStatisticComboBox() {
-    // Thêm các lựa chọn thống kê
-        cbxStatisticType.removeAllItems();
-        cbxStatisticType.addItem("Ngày");
-        cbxStatisticType.addItem("Tuần");
-        cbxStatisticType.addItem("Tháng");
-        cbxStatisticType.addItem("Năm");
-
-        // Lắng nghe sự kiện khi thay đổi lựa chọn
-        cbxStatisticType.addActionListener(e -> loadStatistics());
-
-        // Mặc định chọn "Ngày"
-        cbxStatisticType.setSelectedIndex(0);
-    }
-    
-    private void loadStatistics() {
-        try {
-            String type = cbxStatisticType.getSelectedItem().toString();
-            String queryType = "";
-
-            switch (type) {
-                case "Ngày":
-                    queryType = "DAY";
-                    break;
-                case "Tuần":
-                    queryType = "WEEK";
-                    break;
-                case "Tháng":
-                    queryType = "MONTH";
-                    break;
-                case "Năm":
-                    queryType = "YEAR";
-                    break;
-            }
-
-            // Thống kê theo sản phẩm
-            String selectedProduct = (String) cbProducts.getSelectedItem();
-            if (selectedProduct != null && !selectedProduct.isEmpty()) {
-                ProductStatistic ps = orderDAO.getProductStatistic(queryType, selectedProduct);
-                txtQuantity.setText("Số lượng bán: " + ps.getTotalQuantity());
-                txtTotalRevenue.setText("Doanh thu sản phẩm: " + ps.getTotalRevenue() + " VND");
-            } else {
-                txtQuantity.setText("");
-                txtTotalRevenue.setText("");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi thống kê: " + e.getMessage());
-        }
-    }
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -164,11 +109,13 @@ public class OrderManagement extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblOrderDetail = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
-        cbxStatisticType = new javax.swing.JComboBox<>();
         txtTotalRevenue = new javax.swing.JTextField();
         btnComeBack = new javax.swing.JButton();
         cbProducts = new javax.swing.JComboBox<>();
         txtQuantity = new javax.swing.JTextField();
+        txtStartDate = new javax.swing.JTextField();
+        txtEndDate = new javax.swing.JTextField();
+        btnStatistic = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -225,11 +172,9 @@ public class OrderManagement extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel2.setText("Thống kê:");
 
-        cbxStatisticType.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        cbxStatisticType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Thời gian" }));
-
         txtTotalRevenue.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
+        btnComeBack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnComeBack.setText("Quay lại");
         btnComeBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -242,6 +187,28 @@ public class OrderManagement extends javax.swing.JFrame {
 
         txtQuantity.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
 
+        txtStartDate.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        txtStartDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtStartDateActionPerformed(evt);
+            }
+        });
+
+        txtEndDate.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        txtEndDate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtEndDateActionPerformed(evt);
+            }
+        });
+
+        btnStatistic.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnStatistic.setText("Thống kê");
+        btnStatistic.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStatisticActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -252,45 +219,55 @@ public class OrderManagement extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(477, 477, 477)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(49, 49, 49)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1071, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane1)
+                            .addComponent(jScrollPane2)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel2)
-                                .addGap(18, 18, 18)
-                                .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(41, 41, 41)
-                                .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(45, 45, 45)
+                                .addGap(36, 36, 36)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtTotalRevenue, javax.swing.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE)
-                                    .addComponent(txtQuantity))))))
-                .addContainerGap(60, Short.MAX_VALUE))
+                                    .addComponent(txtEndDate, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                                    .addComponent(txtStartDate))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                                .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(32, 32, 32)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(310, 310, 310)
+                        .addComponent(jLabel1))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(284, 284, 284)
+                        .addComponent(btnStatistic, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(btnComeBack)
-                .addGap(20, 20, 20)
+                .addGap(8, 8, 8)
                 .addComponent(jLabel1)
-                .addGap(26, 26, 26)
+                .addGap(38, 38, 38)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(cbxStatisticType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
-                .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtTotalRevenue, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel2)
+                            .addComponent(txtStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbProducts, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(txtEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(36, 36, 36)
+                .addComponent(btnStatistic)
                 .addContainerGap(39, Short.MAX_VALUE))
         );
 
@@ -311,6 +288,56 @@ public class OrderManagement extends javax.swing.JFrame {
         admin.setVisible(true);
         // TODO add your handling code here:
     }//GEN-LAST:event_btnComeBackActionPerformed
+
+    private void txtStartDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtStartDateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtStartDateActionPerformed
+
+    private void btnStatisticActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStatisticActionPerformed
+        try {
+            // Lấy giá trị nhập từ các ô text
+            String startText = txtStartDate.getText().trim();
+            String endText = txtEndDate.getText().trim();
+
+            // Lấy tên sản phẩm từ combo box
+            String productName = cbProducts.getSelectedItem().toString();
+
+            // Kiểm tra rỗng
+            if (startText.isEmpty() || endText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ ngày bắt đầu và ngày kết thúc!");
+                return;
+            }
+
+            // Định dạng ngày nhập theo dd/MM/yyyy
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            // Chuyển sang LocalDate
+            LocalDate startDate = LocalDate.parse(startText, formatter);
+            LocalDate endDate = LocalDate.parse(endText, formatter);
+
+            // Kiểm tra logic ngày
+            if (endDate.isBefore(startDate)) {
+                JOptionPane.showMessageDialog(this, "Ngày kết thúc phải sau ngày bắt đầu!");
+                return;
+            }
+
+            // Gọi hàm lấy thống kê
+            ProductStatistic statistic = orderDAO.getProductStatisticByRange(startDate, endDate, productName);
+
+            // Hiển thị kết quả
+            txtQuantity.setText(String.valueOf(statistic.getTotalQuantity()));
+            txtTotalRevenue.setText(String.format("%,.2f", statistic.getTotalRevenue()));
+            
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Sai định dạng ngày! Vui lòng nhập theo dạng dd/MM/yyyy (ví dụ: 22/10/2025).");
+        }
+    }//GEN-LAST:event_btnStatisticActionPerformed
+
+    private void txtEndDateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEndDateActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtEndDateActionPerformed
 
     /**
      * @param args the command line arguments
@@ -349,15 +376,17 @@ public class OrderManagement extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnComeBack;
+    private javax.swing.JButton btnStatistic;
     private javax.swing.JComboBox<String> cbProducts;
-    private javax.swing.JComboBox<String> cbxStatisticType;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblOrderDetail;
     private javax.swing.JTable tblOrders;
+    private javax.swing.JTextField txtEndDate;
     private javax.swing.JTextField txtQuantity;
+    private javax.swing.JTextField txtStartDate;
     private javax.swing.JTextField txtTotalRevenue;
     // End of variables declaration//GEN-END:variables
 }

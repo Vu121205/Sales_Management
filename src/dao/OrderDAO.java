@@ -1,13 +1,15 @@
 package dao;
 
+import dao.DBConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.sql.Date;
 import model.Order;
 import model.OrderDetail;
 import java.util.UUID;
@@ -75,103 +77,38 @@ public class OrderDAO {
         }
         return details;
     }
-    
-    public int getTotalOrders(String type) throws SQLException {
-        String sql = buildQuery(type);
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            if (rs.next()) {
-                return rs.getInt("total_orders");
-            }
-        }
-        return 0;
-    }
+ 
+    //Thống kê theo ngày và sản phẩm
+    public ProductStatistic getProductStatisticByRange(LocalDate startDate, LocalDate endDate, String productName) throws SQLException {
+            String sql = """
+                SELECT 
+                    SUM(od.quantity) AS total_quantity,
+                    SUM(od.amount) AS total_revenue
+                FROM Order_Details od
+                JOIN Orders o ON od.order_id = o.id
+                JOIN Product p ON od.product_id = p.id
+                WHERE o.order_date BETWEEN ? AND ?
+                AND p.name = ?
+            """;
 
-    public double getTotalRevenue(String type) throws SQLException {
-        String sql = buildQuery(type);
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            if (rs.next()) {
-                return rs.getDouble("total_revenue");
-            }
-        }
-        return 0;
-    }
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
-//    Thống kê theo thời gian
-    private String buildQuery(String type) {
-        switch (type) {
-            case "DAY":
-                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
-                        + "FROM orders o "
-                        + "JOIN order_details od ON o.id = od.order_id "
-                        + "WHERE DATE(o.order_date) = CURDATE()";
-            case "WEEK":
-                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
-                        + "FROM orders o "
-                        + "JOIN order_details od ON o.id = od.order_id "
-                        + "WHERE YEARWEEK(o.order_date, 1) = YEARWEEK(CURDATE(), 1)";
-            case "MONTH":
-                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
-                        + "FROM orders o "
-                        + "JOIN order_details od ON o.id = od.order_id "
-                        + "WHERE YEAR(o.order_date) = YEAR(CURDATE()) AND MONTH(o.order_date) = MONTH(CURDATE())";
-            case "YEAR":
-                return "SELECT COUNT(DISTINCT o.id) AS total_orders, SUM(od.amount) AS total_revenue "
-                        + "FROM orders o "
-                        + "JOIN order_details od ON o.id = od.order_id "
-                        + "WHERE YEAR(o.order_date) = YEAR(CURDATE())";
-            default:
-                throw new IllegalArgumentException("Invalid type: " + type);
-        }
-    }
-//    Thống kê theo sản phẩm
-    private String buildProductQuery(String type) {
-        String baseQuery = """
-            SELECT 
-                p.name AS product_name,
-                SUM(od.quantity) AS total_quantity,
-                SUM(od.amount) AS total_revenue
-            FROM orders o
-            JOIN order_details od ON o.id = od.order_id
-            JOIN product p ON od.product_id = p.id
-            WHERE p.name = ?
-        """;
+                ps.setDate(1, Date.valueOf(startDate));
+                ps.setDate(2, Date.valueOf(endDate));
+                ps.setString(3, productName);
 
-        switch (type) {
-            case "DAY":
-                return baseQuery + " AND DATE(o.order_date) = CURDATE() GROUP BY p.name";
-            case "WEEK":
-                return baseQuery + " AND YEARWEEK(o.order_date, 1) = YEARWEEK(CURDATE(), 1) GROUP BY p.name";
-            case "MONTH":
-                return baseQuery + " AND MONTH(o.order_date) = MONTH(CURDATE()) AND YEAR(o.order_date) = YEAR(CURDATE()) GROUP BY p.name";
-            case "YEAR":
-                return baseQuery + " AND YEAR(o.order_date) = YEAR(CURDATE()) GROUP BY p.name";
-            default:
-                throw new IllegalArgumentException("Invalid type: " + type);
-        }
-    }
-    
-    public ProductStatistic getProductStatistic(String type, String productName) throws SQLException {
-        String sql = buildProductQuery(type);
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, productName);
-            try (ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    return new ProductStatistic(
-                        rs.getString("product_name"),
-                        rs.getInt("total_quantity"),
-                        rs.getDouble("total_revenue")
-                    );
-                } else {
-                    // Nếu chưa bán sản phẩm nào
-                    return new ProductStatistic(productName, 0, 0.0);
+                    int quantity = rs.getInt("total_quantity");
+                    double revenue = rs.getDouble("total_revenue");
+                    return new ProductStatistic(productName, quantity, revenue);
                 }
+
+            } catch (SQLException e) {
+                System.err.println("Lỗi khi thống kê theo ngày và sản phẩm: " + e.getMessage());
             }
-        }
+            return new ProductStatistic(productName, 0, 0);
     }
 
 
